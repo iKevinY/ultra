@@ -1,13 +1,15 @@
 use std::ascii::AsciiExt;
 
 struct Rotor<'a> {
-    rotor: &'a [u8]
+    rotor: &'a [u8],
+    length: usize,
 }
 
 impl<'a> Rotor<'a> {
     pub fn new(rotor: &'a str) -> Rotor<'a> {
         Rotor {
             rotor: rotor.as_bytes(),
+            length: rotor.len(),
         }
     }
 
@@ -19,7 +21,7 @@ impl<'a> Rotor<'a> {
         let letter = c.to_ascii_uppercase();
         let offset = ((letter as u8) - ('A' as u8)) as usize;
 
-        self.rotor[offset] as char
+        self.rotor[offset % self.length] as char
     }
 }
 
@@ -33,6 +35,7 @@ mod tests {
         let rotor = Rotor::new("XYZ");
         assert!(rotor.substitute('A') == 'X');
         assert!(rotor.substitute('b') == 'Y');
+        assert!(rotor.substitute('F') == 'Z');
         assert!(rotor.substitute('!') == '!');
         assert!(rotor.substitute('é') == 'é');
     }
