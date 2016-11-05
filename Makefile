@@ -1,10 +1,13 @@
 all: build
 
 build:
-	cargo build
+	@cargo build
+
+doc:
+	@cargo doc
 
 test:
-	cargo test
+	@cargo test
 
 
-.PHONY: all build test
+.PHONY: all build doc test
