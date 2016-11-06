@@ -2,20 +2,23 @@ use std::ascii::AsciiExt;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-pub struct Rotor<'a> {
-    rotor: &'a [u8],
+pub struct Rotor {
+    rotor: Vec<char>,
     length: usize,
-    notches: HashSet<u8>,
+    notches: HashSet<usize>,
     offset: usize,
 }
 
-impl<'a> Rotor<'a> {
+impl Rotor {
     /// Creates a new `Rotor`.
-    pub fn new(rotor: &'a str, notches: &str) -> Rotor<'a> {
+    pub fn new(rotor: &str, notches: &str) -> Rotor {
+        let rotor: Vec<char> = rotor.chars().collect();
+        let rotor_len = rotor.len();
+
         Rotor {
-            rotor: rotor.as_bytes(),
-            length: rotor.len(),
-            notches: HashSet::from_iter(notches.as_bytes().iter().map(|c| c - 65u8)),
+            rotor: rotor,
+            length: rotor_len,
+            notches: HashSet::from_iter(notches.chars().map(|c| (c as usize) - 65)),
             offset: 0,
         }
     }
@@ -29,15 +32,15 @@ impl<'a> Rotor<'a> {
         }
 
         let letter = c.to_ascii_uppercase();
-        let index = ((letter as u8) - 65u8) as usize;
+        let index = (letter as u8 as usize) - 65;
 
-        self.rotor[(index + self.offset) % self.length] as char
+        self.rotor[(index + self.offset) % self.length]
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
     /// it should be advanced as well.
     pub fn advance(&mut self) -> bool {
-        let advance = self.notches.contains(&(self.offset as u8));
+        let advance = self.notches.contains(&self.offset);
         self.offset += 1 % self.length;
         return advance;
     }

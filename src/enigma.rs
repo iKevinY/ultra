@@ -1,14 +1,14 @@
 use rotor::Rotor;
 
-pub struct Enigma<'a> {
-    slow: Rotor<'a>,
-    mid: Rotor<'a>,
-    fast: Rotor<'a>,
+pub struct Enigma {
+    slow: Rotor,
+    mid: Rotor,
+    fast: Rotor,
 }
 
-impl<'a> Enigma<'a> {
+impl Enigma {
     /// Creates a new `Enigma`.
-    pub fn new(slow: Rotor<'a>, mid: Rotor<'a>, fast: Rotor<'a>) -> Enigma<'a> {
+    pub fn new(slow: Rotor, mid: Rotor, fast: Rotor) -> Enigma {
         Enigma {
             slow: slow,
             mid: mid,
