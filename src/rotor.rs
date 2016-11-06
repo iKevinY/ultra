@@ -2,8 +2,9 @@ use std::ascii::AsciiExt;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
+#[derive(Clone, Debug)]
 pub struct Rotor {
-    rotor: Vec<char>,
+    mapping: Vec<char>,
     inverse: Vec<char>,
     notches: HashSet<usize>,
     length: usize,
@@ -12,22 +13,22 @@ pub struct Rotor {
 
 impl Rotor {
     /// Creates a new `Rotor`.
-    pub fn new(rotor: &str, notches: &str) -> Rotor {
-        let rotor: Vec<char> = rotor.chars().collect();
-        let rotor_len = rotor.len();
+    pub fn new(mapping: &str, notches: &str) -> Rotor {
+        let mapping: Vec<char> = mapping.chars().collect();
+        let rotor_len = mapping.len();
 
         let inverse = {
             let mut inverse = vec!['A'; rotor_len];
-            for (i, &c) in rotor.iter().enumerate() {
-                let offset = ((c as u8) - 65u8) as usize;
-                let letter = ((i as u8) + 65u8) as char;
+            for (i, &c) in mapping.iter().enumerate() {
+                let offset = ((c as u8) - 65) as usize;
+                let letter = ((i as u8) + 65) as char;
                 inverse[offset % rotor_len] = letter;
             }
             inverse
         };
 
         Rotor {
-            rotor: rotor,
+            mapping: mapping,
             inverse: inverse,
             length: rotor_len,
             notches: HashSet::from_iter(notches.chars().map(|c| (c as usize) - 65)),
@@ -35,22 +36,22 @@ impl Rotor {
         }
     }
 
-    fn encode_char(&self, c: char, rotor: &Vec<char>) -> char {
+    fn encode_char(&self, c: char, mapping: &Vec<char>) -> char {
         if !c.is_ascii() || !c.is_alphabetic() {
             return c;
         }
 
         let letter = c.to_ascii_uppercase();
-        let index = (letter as u8 as usize) - 65;
+        let index = (letter as usize) - 65;
 
-        rotor[(index + self.offset) % self.length]
+        mapping[(index + self.offset) % self.length]
     }
 
     /// Returns the substitution of a given character, dependent
     /// on the current offset of the rotor. For non-alphabetic
     /// characters, simply return the character itself.
     pub fn substitute(&self, c: char) -> char {
-        self.encode_char(c, &self.rotor)
+        self.encode_char(c, &self.mapping)
     }
 
     /// Returns the substitution of a given character when run through
