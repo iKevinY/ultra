@@ -1,4 +1,14 @@
 [root]
 name = "ultra"
 version = "0.1.0"
+dependencies = [
+ "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "lazy_static"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "49247ec2a285bb3dcb23cbd9c35193c025e7251bfce77c1d5da97e6362dffe7f"

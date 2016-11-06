@@ -1,5 +1,6 @@
 use rotor::Rotor;
 
+#[derive(Clone, Debug)]
 pub struct Enigma {
     slow: Rotor,
     mid: Rotor,
@@ -8,11 +9,11 @@ pub struct Enigma {
 
 impl Enigma {
     /// Creates a new `Enigma`.
-    pub fn new(slow: Rotor, mid: Rotor, fast: Rotor) -> Enigma {
+    pub fn new(slow: usize, mid: usize, fast: usize) -> Enigma {
         Enigma {
-            slow: slow,
-            mid: mid,
-            fast: fast,
+            slow: ROTORS[slow - 1].clone(),
+            mid: ROTORS[mid - 1].clone(),
+            fast: ROTORS[fast - 1].clone(),
         }
     }
 
@@ -28,18 +29,27 @@ impl Enigma {
 }
 
 
+lazy_static! {
+    static ref ROTORS: Vec<Rotor> = vec![
+        Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q"),
+        Rotor::new("AJDKSIRUXBLHWTMCQGZNPYFVOE", "E"),
+        Rotor::new("BDFHJLCPRTXVZNYEIWGAKMUSQO", "V"),
+        Rotor::new("ESOVPZJAYQUIRHXLNFTGKDCMWB", "J"),
+        Rotor::new("VZBRGITYUPSDNHLXAWMJQOFECK", "Z"),
+        Rotor::new("JPGVOUMFYQBENHZRDKASXLICTW", "ZM"),
+        Rotor::new("NZJHGRCXMYSWBOUFAIVLPEKQDT", "ZM"),
+        Rotor::new("FKQHTLXOCBJSPDZRAMEWNIUYGV", "ZM"),
+    ];
+}
+
+
 #[cfg(test)]
 mod tests {
-    use rotor::Rotor;
     use super::Enigma;
 
     #[test]
     fn advance_enigma() {
-        let rotor1 = Rotor::new("ABC", "A");
-        let rotor2 = Rotor::new("DEF", "A");
-        let rotor3 = Rotor::new("GHI", "A");
-
-        let mut enigma = Enigma::new(rotor1, rotor2, rotor3);
+        let mut enigma = Enigma::new(1, 2, 3);
         enigma.advance();
     }
 }
