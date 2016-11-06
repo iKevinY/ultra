@@ -1,6 +1,7 @@
-use std::ascii::AsciiExt;
 use std::collections::HashSet;
 use std::iter::FromIterator;
+
+use util::map_char;
 
 #[derive(Clone, Debug)]
 pub struct Rotor {
@@ -36,28 +37,17 @@ impl Rotor {
         }
     }
 
-    fn encode_char(&self, c: char, mapping: &Vec<char>) -> char {
-        if !c.is_ascii() || !c.is_alphabetic() {
-            return c;
-        }
-
-        let letter = c.to_ascii_uppercase();
-        let index = (letter as usize) - 65;
-
-        mapping[(index + self.offset) % self.length]
-    }
-
     /// Returns the substitution of a given character, dependent
     /// on the current offset of the rotor. For non-alphabetic
     /// characters, simply return the character itself.
     pub fn substitute(&self, c: char) -> char {
-        self.encode_char(c, &self.mapping)
+        map_char(c, &self.mapping, self.offset, self.length)
     }
 
     /// Returns the substitution of a given character when run through
     /// the rotor in reverse (on the path back from the reflector).
     pub fn invert(&self, c: char) -> char {
-        self.encode_char(c, &self.inverse)
+        map_char(c, &self.inverse, self.offset, self.length)
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to

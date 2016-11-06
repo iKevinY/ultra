@@ -5,3 +5,4 @@ extern crate lazy_static;
 
 pub mod enigma;
 pub mod rotor;
+mod util;
