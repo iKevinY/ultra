@@ -4,8 +4,9 @@ use std::iter::FromIterator;
 
 pub struct Rotor {
     rotor: Vec<char>,
-    length: usize,
+    inverse: Vec<char>,
     notches: HashSet<usize>,
+    length: usize,
     offset: usize,
 }
 
@@ -15,18 +16,26 @@ impl Rotor {
         let rotor: Vec<char> = rotor.chars().collect();
         let rotor_len = rotor.len();
 
+        let inverse = {
+            let mut inverse = vec!['A'; rotor_len];
+            for (i, &c) in rotor.iter().enumerate() {
+                let offset = ((c as u8) - 65u8) as usize;
+                let letter = ((i as u8) + 65u8) as char;
+                inverse[offset % rotor_len] = letter;
+            }
+            inverse
+        };
+
         Rotor {
             rotor: rotor,
+            inverse: inverse,
             length: rotor_len,
             notches: HashSet::from_iter(notches.chars().map(|c| (c as usize) - 65)),
             offset: 0,
         }
     }
 
-    /// Returns the substitution of a given character, dependent
-    /// on the current offset of the rotor. For non-alphabetic
-    /// characters, simply return the character itself.
-    pub fn substitute(&self, c: char) -> char {
+    fn encode_char(&self, c: char, rotor: &Vec<char>) -> char {
         if !c.is_ascii() || !c.is_alphabetic() {
             return c;
         }
@@ -34,7 +43,20 @@ impl Rotor {
         let letter = c.to_ascii_uppercase();
         let index = (letter as u8 as usize) - 65;
 
-        self.rotor[(index + self.offset) % self.length]
+        rotor[(index + self.offset) % self.length]
+    }
+
+    /// Returns the substitution of a given character, dependent
+    /// on the current offset of the rotor. For non-alphabetic
+    /// characters, simply return the character itself.
+    pub fn substitute(&self, c: char) -> char {
+        self.encode_char(c, &self.rotor)
+    }
+
+    /// Returns the substitution of a given character when run through
+    /// the rotor in reverse (on the path back from the reflector).
+    pub fn invert(&self, c: char) -> char {
+        self.encode_char(c, &self.inverse)
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
@@ -73,5 +95,13 @@ mod tests {
         // Moving from B to C should advance the next rotor
         assert!(rotor.advance());
         assert!(rotor.substitute('A') == 'C');
+    }
+
+    #[test]
+    fn rotor_inverse() {
+        // Rotor I of the Enigma
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
+        let inverse: String = rotor.inverse.into_iter().collect();
+        assert!(&inverse == "UWYGADFPVZBECKMTHXSLRINQOJ");
     }
 }
