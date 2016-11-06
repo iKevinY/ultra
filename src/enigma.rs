@@ -1,3 +1,4 @@
+use reflector::Reflector;
 use rotor::Rotor;
 
 #[derive(Clone, Debug)]
@@ -5,15 +6,19 @@ pub struct Enigma {
     slow: Rotor,
     mid: Rotor,
     fast: Rotor,
+    reflector: Reflector,
 }
 
 impl Enigma {
     /// Creates a new `Enigma`.
-    pub fn new(slow: usize, mid: usize, fast: usize) -> Enigma {
+    pub fn new(slow: usize, mid: usize, fast: usize, reflector: char) -> Enigma {
+        let reflector = (reflector as usize) - 65;
+
         Enigma {
             slow: ROTORS[slow - 1].clone(),
             mid: ROTORS[mid - 1].clone(),
             fast: ROTORS[fast - 1].clone(),
+            reflector: REFLECTORS[reflector - 1].clone(),
         }
     }
 
@@ -40,6 +45,12 @@ lazy_static! {
         Rotor::new("NZJHGRCXMYSWBOUFAIVLPEKQDT", "ZM"),
         Rotor::new("FKQHTLXOCBJSPDZRAMEWNIUYGV", "ZM"),
     ];
+
+    static ref REFLECTORS: Vec<Reflector> = vec![
+        Reflector::new("EJMZALYXVBWFCRQUONTSPIKHGD"),
+        Reflector::new("YRUHQSLDPXNGOKMIEBFZCWVJAT"),
+        Reflector::new("FVPJIAOYEDRZXWGCTKUQSBNMHL"),
+    ];
 }
 
 
@@ -49,7 +60,7 @@ mod tests {
 
     #[test]
     fn advance_enigma() {
-        let mut enigma = Enigma::new(1, 2, 3);
+        let mut enigma = Enigma::new(1, 2, 3, 'B');
         enigma.advance();
     }
 }
