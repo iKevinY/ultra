@@ -12,7 +12,14 @@ pub struct Rotor {
 }
 
 impl Rotor {
-    /// Creates a new `Rotor`.
+    /// Creates a new `Rotor`, where `mapping` is a 26-character `&str`
+    /// containing some ordering of all letters in the alphabet, and
+    /// `notches` is a `&str` where each character in the string
+    /// corresponds to a single notch in the rotor.
+    ///
+    /// For a mapping beginning with "EKM", the rotor would map `A` to
+    /// `E`, `B` to `K`, and so forth. If the rotor is advanced once,
+    /// `A` would be mapped to `K`, and `B` would be mapped to `M`.
     pub fn new(mapping: &str, notches: &str) -> Rotor {
         let mapping: Vec<char> = mapping.chars().collect();
 
@@ -92,6 +99,24 @@ mod tests {
     }
 
     #[test]
+    fn inverse_mapping() {
+        // Rotor I of the Enigma
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
+        let inverse: String = rotor.inverse.into_iter().collect();
+        assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
+    }
+
+    #[test]
+    fn matching_inverses() {
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
+        for i in 65u8..91u8 {
+            let c = i as char;
+            assert_eq!(c, rotor.invert(rotor.substitute(c)));
+            rotor.advance();
+        }
+    }
+
+    #[test]
     fn step_inverse() {
         let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
         assert_eq!(rotor.invert('E'), 'A');
@@ -99,14 +124,6 @@ mod tests {
         assert_eq!(rotor.invert('K'), 'A');
         rotor.advance();
         assert_eq!(rotor.invert('M'), 'A');
-    }
-
-    #[test]
-    fn rotor_inverse() {
-        // Rotor I of the Enigma
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
-        let inverse: String = rotor.inverse.into_iter().collect();
-        assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
     }
 
     #[test]

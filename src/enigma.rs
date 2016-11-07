@@ -10,7 +10,9 @@ pub struct Enigma {
 }
 
 impl Enigma {
-    /// Creates a new `Enigma`.
+    /// Creates a new `Enigma`, where `slow`, `mid`, and `fast` are integers
+    /// ranging from 1-8 (corresponding to rotors I through VIII of the real
+    /// Enigma machine), and `reflector` is one of `'A'`, `'B'`, or `'C'`.
     pub fn new(slow: usize, mid: usize, fast: usize, reflector: char) -> Enigma {
         let reflector = (reflector as usize) - 65;
 
