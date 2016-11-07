@@ -22,11 +22,7 @@ impl Plugboard {
     }
 
     pub fn map(&self, c: char) -> char {
-        if self.mapping.contains_key(&c) {
-            *self.mapping.get(&c).unwrap()
-        } else {
-            c
-        }
+        *self.mapping.get(&c).unwrap_or(&c)
     }
 }
 
