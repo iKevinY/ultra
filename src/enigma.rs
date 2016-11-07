@@ -24,9 +24,43 @@ impl Enigma {
         }
     }
 
-    /// Advances the `fast` rotor of the `Enigma`, and also advances
-    /// the `mid` and `slow` rotors if appropriate.
-    pub fn advance(&mut self) {
+
+    /// Encrypts an entire message, advancing the rotors of the machine
+    /// after each alphabetic character is encrypted.
+    pub fn encrypt(&mut self, msg: &str) -> String {
+        msg.chars().map(|c| self.encrypt_char(c)).collect()
+    }
+
+    /// Returns the substitution of a character, and advances
+    /// the rotors if the input character was alphabetic.
+    pub fn encrypt_char(&mut self, c: char) -> char {
+        let encrypted_char = self.substitute(c);
+
+        if c.is_alphabetic() {
+            self.advance();
+        }
+
+        encrypted_char
+    }
+
+
+    /// Returns the substitution of a character, which is determined
+    /// by passing the character in sequence through rotors from
+    /// `fast` to `slow`, through the reflector, then inverted
+    /// through the rotors from `slow` to `fast`.
+    fn substitute(&self, c: char) -> char {
+        if !c.is_alphabetic() {
+            return c;
+        }
+
+        let c = self.slow.substitute(self.mid.substitute(self.fast.substitute(c)));
+        let c = self.reflector.reflect(c);
+        self.fast.invert(self.mid.invert(self.slow.invert(c)))
+    }
+
+    /// Advances the `fast` rotor, and also advances the
+    /// `mid` and `slow` rotors if appropriate.
+    fn advance(&mut self) {
         if self.fast.advance() {
             if self.mid.advance() {
                 self.slow.advance();
@@ -61,8 +95,16 @@ mod tests {
     use super::Enigma;
 
     #[test]
-    fn advance_enigma() {
+    fn symmetrical_behaviour() {
+        let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
+
         let mut enigma = Enigma::new(1, 2, 3, 'B');
-        enigma.advance();
+        let ciphertext = enigma.encrypt(msg);
+
+        // Reset the machine to its original state
+        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let plaintext = enigma.encrypt(&ciphertext);
+
+        assert_eq!(plaintext, msg);
     }
 }
