@@ -3,22 +3,17 @@ use util::map_char;
 #[derive(Clone, Debug)]
 pub struct Reflector {
     mapping: Vec<char>,
-    length: usize,
 }
 
 impl Reflector {
     pub fn new(mapping: &str) -> Reflector {
-        let mapping: Vec<char> = mapping.chars().collect();
-        let length = mapping.len();
-
         Reflector {
-            mapping: mapping,
-            length: length,
+            mapping: mapping.chars().collect(),
         }
     }
 
     pub fn reflect(&self, c: char) -> char {
-        map_char(c, &self.mapping, 0, self.length)
+        map_char(c, &self.mapping, 0)
     }
 }
 
@@ -29,9 +24,9 @@ mod tests {
 
     #[test]
     fn char_reflection() {
-        let reflector = Reflector::new("XYZ");
-        assert_eq!(reflector.reflect('A'), 'X');
-        assert_eq!(reflector.reflect('b'), 'Y');
+        let reflector = Reflector::new("EJMZALYXVBWFCRQUONTSPIKHGD");
+        assert_eq!(reflector.reflect('A'), 'E');
+        assert_eq!(reflector.reflect('b'), 'J');
         assert_eq!(reflector.reflect('!'), '!');
     }
 }

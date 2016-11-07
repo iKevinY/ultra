@@ -8,7 +8,6 @@ pub struct Rotor {
     mapping: Vec<char>,
     inverse: Vec<char>,
     notches: HashSet<usize>,
-    length: usize,
     offset: usize,
 }
 
@@ -16,14 +15,13 @@ impl Rotor {
     /// Creates a new `Rotor`.
     pub fn new(mapping: &str, notches: &str) -> Rotor {
         let mapping: Vec<char> = mapping.chars().collect();
-        let rotor_len = mapping.len();
 
         let inverse = {
-            let mut inverse = vec!['A'; rotor_len];
+            let mut inverse = vec!['A'; 26];
             for (i, &c) in mapping.iter().enumerate() {
-                let offset = ((c as u8) - 65) as usize;
+                let index = ((c as u8) - 65) as usize;
                 let letter = ((i as u8) + 65) as char;
-                inverse[offset % rotor_len] = letter;
+                inverse[index % 26] = letter;
             }
             inverse
         };
@@ -31,7 +29,6 @@ impl Rotor {
         Rotor {
             mapping: mapping,
             inverse: inverse,
-            length: rotor_len,
             notches: HashSet::from_iter(notches.chars().map(|c| (c as usize) - 65)),
             offset: 0,
         }
@@ -41,21 +38,21 @@ impl Rotor {
     /// on the current offset of the rotor. For non-alphabetic
     /// characters, simply return the character itself.
     pub fn substitute(&self, c: char) -> char {
-        map_char(c, &self.mapping, self.offset, self.length)
+        map_char(c, &self.mapping, self.offset)
     }
 
     /// Returns the substitution of a given character when run through
     /// the rotor in reverse (on the path back from the reflector).
     pub fn invert(&self, c: char) -> char {
-        map_char(c, &self.inverse, self.offset, self.length)
+        map_char(c, &self.inverse, self.offset)
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
     /// it should be advanced as well.
     pub fn advance(&mut self) -> bool {
-        let advance = self.notches.contains(&self.offset);
-        self.offset += 1 % self.length;
-        return advance;
+        let advance_next = self.notches.contains(&self.offset);
+        self.offset = (self.offset + 1) % 26;
+        return advance_next;
     }
 }
 
@@ -66,26 +63,27 @@ mod tests {
 
     #[test]
     fn char_substitution() {
-        let rotor = Rotor::new("XYZ", "A");
-        assert_eq!(rotor.substitute('A'), 'X');
-        assert_eq!(rotor.substitute('b'), 'Y');
-        assert_eq!(rotor.substitute('F'), 'Z');
-        assert_eq!(rotor.substitute('!'), '!');
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
+        assert_eq!(rotor.substitute('A'), 'E');
+        assert_eq!(rotor.substitute('b'), 'K');
+        assert_eq!(rotor.substitute(' '), ' ');
         assert_eq!(rotor.substitute('é'), 'é');
     }
 
     #[test]
     fn step_rotor() {
-        let mut rotor = Rotor::new("ABC", "B");
-        assert_eq!(rotor.substitute('A'), 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
+        assert_eq!(rotor.substitute('A'), 'E');
 
         // Step the rotor one position
         assert!(!rotor.advance());
-        assert_eq!(rotor.substitute('A'), 'B');
+        assert_eq!(rotor.offset, 1);
+        assert_eq!(rotor.substitute('A'), 'K');
 
         // Moving from B to C should advance the next rotor
         assert!(rotor.advance());
-        assert_eq!(rotor.substitute('A'), 'C');
+        assert_eq!(rotor.offset, 2);
+        assert_eq!(rotor.substitute('A'), 'M');
     }
 
     #[test]
