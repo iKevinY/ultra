@@ -30,8 +30,8 @@ mod tests {
     #[test]
     fn char_reflection() {
         let reflector = Reflector::new("XYZ");
-        assert!(reflector.reflect('A') == 'X');
-        assert!(reflector.reflect('b') == 'Y');
-        assert!(reflector.reflect('!') == '!');
+        assert_eq!(reflector.reflect('A'), 'X');
+        assert_eq!(reflector.reflect('b'), 'Y');
+        assert_eq!(reflector.reflect('!'), '!');
     }
 }

@@ -67,25 +67,25 @@ mod tests {
     #[test]
     fn char_substitution() {
         let rotor = Rotor::new("XYZ", "A");
-        assert!(rotor.substitute('A') == 'X');
-        assert!(rotor.substitute('b') == 'Y');
-        assert!(rotor.substitute('F') == 'Z');
-        assert!(rotor.substitute('!') == '!');
-        assert!(rotor.substitute('é') == 'é');
+        assert_eq!(rotor.substitute('A'), 'X');
+        assert_eq!(rotor.substitute('b'), 'Y');
+        assert_eq!(rotor.substitute('F'), 'Z');
+        assert_eq!(rotor.substitute('!'), '!');
+        assert_eq!(rotor.substitute('é'), 'é');
     }
 
     #[test]
     fn step_rotor() {
         let mut rotor = Rotor::new("ABC", "B");
-        assert!(rotor.substitute('A') == 'A');
+        assert_eq!(rotor.substitute('A'), 'A');
 
         // Step the rotor one position
         assert!(!rotor.advance());
-        assert!(rotor.substitute('A') == 'B');
+        assert_eq!(rotor.substitute('A'), 'B');
 
         // Moving from B to C should advance the next rotor
         assert!(rotor.advance());
-        assert!(rotor.substitute('A') == 'C');
+        assert_eq!(rotor.substitute('A'), 'C');
     }
 
     #[test]
@@ -93,6 +93,6 @@ mod tests {
         // Rotor I of the Enigma
         let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
         let inverse: String = rotor.inverse.into_iter().collect();
-        assert!(&inverse == "UWYGADFPVZBECKMTHXSLRINQOJ");
+        assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
     }
 }

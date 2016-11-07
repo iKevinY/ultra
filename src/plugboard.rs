@@ -38,10 +38,10 @@ mod tests {
     #[test]
     fn plugboard_map() {
         let plugboard = Plugboard::new("AB CD");
-        assert!(plugboard.map('A') == 'B');
-        assert!(plugboard.map('B') == 'A');
-        assert!(plugboard.map('C') == 'D');
-        assert!(plugboard.map('E') == 'E');
-        assert!(plugboard.map(' ') == ' ');
+        assert_eq!(plugboard.map('A'), 'B');
+        assert_eq!(plugboard.map('B'), 'A');
+        assert_eq!(plugboard.map('C'), 'D');
+        assert_eq!(plugboard.map('E'), 'E');
+        assert_eq!(plugboard.map(' '), ' ');
     }
 }
