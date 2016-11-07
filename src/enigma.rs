@@ -18,7 +18,7 @@ impl Enigma {
             slow: ROTORS[slow - 1].clone(),
             mid: ROTORS[mid - 1].clone(),
             fast: ROTORS[fast - 1].clone(),
-            reflector: REFLECTORS[reflector - 1].clone(),
+            reflector: REFLECTORS[reflector].clone(),
         }
     }
 
