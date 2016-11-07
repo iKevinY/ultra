@@ -16,6 +16,10 @@ impl Rotor {
     pub fn new(mapping: &str, notches: &str) -> Rotor {
         let mapping: Vec<char> = mapping.chars().collect();
 
+        if mapping.len() != 26 {
+            panic!("Rotor mappings must be 26 characters long.");
+        }
+
         let inverse = {
             let mut inverse = vec!['A'; 26];
             for (i, &c) in mapping.iter().enumerate() {
@@ -92,5 +96,11 @@ mod tests {
         let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
         let inverse: String = rotor.inverse.into_iter().collect();
         assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
+    }
+
+    #[test]
+    #[should_panic(expected = "Rotor mappings must be 26 characters long.")]
+    fn invalid_rotor() {
+        Rotor::new("ABC", "A");
     }
 }
