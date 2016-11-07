@@ -48,7 +48,8 @@ impl Rotor {
     /// Returns the substitution of a given character when run through
     /// the rotor in reverse (on the path back from the reflector).
     pub fn invert(&self, c: char) -> char {
-        map_char(c, &self.inverse, self.offset)
+        let index = self.inverse[(c as usize) - 65] as usize - 65;
+        (((index + 26 - self.offset) % 26) + 65) as u8 as char
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
@@ -88,6 +89,16 @@ mod tests {
         assert!(rotor.advance());
         assert_eq!(rotor.offset, 2);
         assert_eq!(rotor.substitute('A'), 'M');
+    }
+
+    #[test]
+    fn step_inverse() {
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
+        assert_eq!(rotor.invert('E'), 'A');
+        rotor.advance();
+        assert_eq!(rotor.invert('K'), 'A');
+        rotor.advance();
+        assert_eq!(rotor.invert('M'), 'A');
     }
 
     #[test]
