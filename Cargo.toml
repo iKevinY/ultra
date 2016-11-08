@@ -19,4 +19,3 @@ doc = false
 path = "src/lib.rs"
 
 [dependencies]
-lazy_static = "0.2"

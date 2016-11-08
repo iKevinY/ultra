@@ -20,11 +20,16 @@ impl Enigma {
     /// Enigma machine), `reflector` is one of `'A'`, `'B'`, or `'C'`, and
     /// `plugboard` is a string of whitespace-delimited pairs of characters.
     pub fn new(slow: usize, mid: usize, fast: usize, reflector: char, plugboard: &str) -> Enigma {
+        let s = slow - 1;
+        let m = mid - 1;
+        let f = fast - 1;
+        let r = reflector.index();
+
         Enigma {
-            slow: ROTORS[slow - 1].clone(),
-            mid: ROTORS[mid - 1].clone(),
-            fast: ROTORS[fast - 1].clone(),
-            reflector: REFLECTORS[reflector.index()].clone(),
+            slow: Rotor::new(ROTORS[s], NOTCHES[s]),
+            mid: Rotor::new(ROTORS[m], NOTCHES[m]),
+            fast: Rotor::new(ROTORS[f], NOTCHES[f]),
+            reflector: Reflector::new(REFLECTORS[r]),
             plugboard: Plugboard::new(plugboard),
         }
     }
@@ -77,24 +82,26 @@ impl Enigma {
 }
 
 
-lazy_static! {
-    static ref ROTORS: Vec<Rotor> = vec![
-        Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q"),
-        Rotor::new("AJDKSIRUXBLHWTMCQGZNPYFVOE", "E"),
-        Rotor::new("BDFHJLCPRTXVZNYEIWGAKMUSQO", "V"),
-        Rotor::new("ESOVPZJAYQUIRHXLNFTGKDCMWB", "J"),
-        Rotor::new("VZBRGITYUPSDNHLXAWMJQOFECK", "Z"),
-        Rotor::new("JPGVOUMFYQBENHZRDKASXLICTW", "ZM"),
-        Rotor::new("NZJHGRCXMYSWBOUFAIVLPEKQDT", "ZM"),
-        Rotor::new("FKQHTLXOCBJSPDZRAMEWNIUYGV", "ZM"),
-    ];
+const ROTORS: &'static [&'static str; 8] = &[
+    "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
+    "AJDKSIRUXBLHWTMCQGZNPYFVOE",
+    "BDFHJLCPRTXVZNYEIWGAKMUSQO",
+    "ESOVPZJAYQUIRHXLNFTGKDCMWB",
+    "VZBRGITYUPSDNHLXAWMJQOFECK",
+    "JPGVOUMFYQBENHZRDKASXLICTW",
+    "NZJHGRCXMYSWBOUFAIVLPEKQDT",
+    "FKQHTLXOCBJSPDZRAMEWNIUYGV",
+];
 
-    static ref REFLECTORS: Vec<Reflector> = vec![
-        Reflector::new("EJMZALYXVBWFCRQUONTSPIKHGD"),
-        Reflector::new("YRUHQSLDPXNGOKMIEBFZCWVJAT"),
-        Reflector::new("FVPJIAOYEDRZXWGCTKUQSBNMHL"),
-    ];
-}
+const NOTCHES: &'static [&'static str; 8] = &[
+    "Q", "E", "V", "J", "Z", "ZM", "ZM", "ZM"
+];
+
+const REFLECTORS: &'static [&'static str; 3] = &[
+    "EJMZALYXVBWFCRQUONTSPIKHGD",
+    "YRUHQSLDPXNGOKMIEBFZCWVJAT",
+    "FVPJIAOYEDRZXWGCTKUQSBNMHL",
+];
 
 
 #[cfg(test)]
