@@ -1,19 +1,21 @@
-use std::collections::HashMap;
+use std::iter::FromIterator;
 
 #[derive(Clone, Debug)]
 pub struct Plugboard {
-    mapping: HashMap<char, char>,
+    mapping: Vec<char>,
 }
 
 impl Plugboard {
     pub fn new(pairs: &str) -> Plugboard {
-        let mut mapping = HashMap::new();
+        let alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let mut mapping = Vec::from_iter(alpha.chars());
 
         for pair in pairs.split_whitespace() {
             let a = pair.chars().nth(0).unwrap();
             let b = pair.chars().nth(1).unwrap();
-            mapping.insert(a, b);
-            mapping.insert(b, a);
+
+            mapping[a as usize - 65] = b;
+            mapping[b as usize - 65] = a;
         }
 
         Plugboard {
@@ -22,7 +24,7 @@ impl Plugboard {
     }
 
     pub fn map(&self, c: char) -> char {
-        *self.mapping.get(&c).unwrap_or(&c)
+        self.mapping[c as usize - 65]
     }
 }
 
@@ -38,6 +40,5 @@ mod tests {
         assert_eq!(plugboard.map('B'), 'A');
         assert_eq!(plugboard.map('C'), 'D');
         assert_eq!(plugboard.map('E'), 'E');
-        assert_eq!(plugboard.map(' '), ' ');
     }
 }
