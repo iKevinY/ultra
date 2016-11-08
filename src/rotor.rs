@@ -1,11 +1,10 @@
-use std::collections::HashSet;
 use std::iter::FromIterator;
 
 #[derive(Clone, Debug)]
 pub struct Rotor {
     mapping: Vec<char>,
     inverse: Vec<char>,
-    notches: HashSet<usize>,
+    notches: Vec<usize>,
     offset: usize,
 }
 
@@ -25,20 +24,18 @@ impl Rotor {
             panic!("Rotor mappings must be 26 characters long.");
         }
 
-        let inverse = {
-            let mut inverse = vec!['A'; 26];
-            for (i, &c) in mapping.iter().enumerate() {
-                let index = ((c as u8) - 65) as usize;
-                let letter = ((i as u8) + 65) as char;
-                inverse[index % 26] = letter;
-            }
-            inverse
-        };
+        let mut inverse = vec!['A'; 26];
+
+        for (i, &c) in mapping.iter().enumerate() {
+            let index = ((c as u8) - 65) as usize;
+            let letter = ((i as u8) + 65) as char;
+            inverse[index % 26] = letter;
+        }
 
         Rotor {
             mapping: mapping,
             inverse: inverse,
-            notches: HashSet::from_iter(notches.chars().map(|c| (c as usize) - 65)),
+            notches: Vec::from_iter(notches.chars().map(|c| (c as usize) - 65)),
             offset: 0,
         }
     }
@@ -59,9 +56,9 @@ impl Rotor {
     /// Advances this rotor, returning `true` if the rotor adjacent to
     /// it should be advanced as well, otherwise `false`.
     pub fn advance(&mut self) -> bool {
-        let advance_next = self.notches.contains(&self.offset);
+        let advance_next = self.notches.iter().any(|&n| n == self.offset);
         self.offset = (self.offset + 1) % 26;
-        return advance_next;
+        advance_next
     }
 }
 
@@ -79,18 +76,19 @@ mod tests {
 
     #[test]
     fn step_rotor() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
-        assert_eq!(rotor.substitute('A'), 'E');
+        // Initialize
+        let mut rotor = Rotor::new("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "B");
+        assert_eq!(rotor.substitute('A'), 'A');
 
         // Step the rotor one position
         assert!(!rotor.advance());
         assert_eq!(rotor.offset, 1);
-        assert_eq!(rotor.substitute('A'), 'K');
+        assert_eq!(rotor.substitute('A'), 'B');
 
         // Moving from B to C should advance the next rotor
         assert!(rotor.advance());
         assert_eq!(rotor.offset, 2);
-        assert_eq!(rotor.substitute('A'), 'M');
+        assert_eq!(rotor.substitute('A'), 'C');
     }
 
     #[test]
