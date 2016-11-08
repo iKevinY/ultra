@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-use util::map_char;
-
 #[derive(Clone, Debug)]
 pub struct Rotor {
     mapping: Vec<char>,
@@ -45,11 +43,10 @@ impl Rotor {
         }
     }
 
-    /// Returns the substitution of a given character, dependent
-    /// on the current offset of the rotor. For non-alphabetic
-    /// characters, simply return the character itself.
+    /// Returns the substitution of a given character
+    /// based on the current offset of the rotor.
     pub fn substitute(&self, c: char) -> char {
-        map_char(c, &self.mapping, self.offset)
+        self.mapping[((c as usize) - 65 + self.offset) % 26]
     }
 
     /// Returns the substitution of a given character when run through
@@ -60,7 +57,7 @@ impl Rotor {
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
-    /// it should be advanced as well.
+    /// it should be advanced as well, otherwise `false`.
     pub fn advance(&mut self) -> bool {
         let advance_next = self.notches.contains(&self.offset);
         self.offset = (self.offset + 1) % 26;
@@ -77,9 +74,7 @@ mod tests {
     fn char_substitution() {
         let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
         assert_eq!(rotor.substitute('A'), 'E');
-        assert_eq!(rotor.substitute('b'), 'K');
-        assert_eq!(rotor.substitute(' '), ' ');
-        assert_eq!(rotor.substitute('é'), 'é');
+        assert_eq!(rotor.substitute('B'), 'K');
     }
 
     #[test]

@@ -1,5 +1,3 @@
-use util::map_char;
-
 #[derive(Clone, Debug)]
 pub struct Reflector {
     mapping: Vec<char>,
@@ -13,7 +11,7 @@ impl Reflector {
     }
 
     pub fn reflect(&self, c: char) -> char {
-        map_char(c, &self.mapping, 0)
+        self.mapping[c as usize - 65]
     }
 }
 
@@ -26,7 +24,6 @@ mod tests {
     fn char_reflection() {
         let reflector = Reflector::new("EJMZALYXVBWFCRQUONTSPIKHGD");
         assert_eq!(reflector.reflect('A'), 'E');
-        assert_eq!(reflector.reflect('b'), 'J');
-        assert_eq!(reflector.reflect('!'), '!');
+        assert_eq!(reflector.reflect('B'), 'J');
     }
 }

@@ -1,3 +1,5 @@
+use std::ascii::AsciiExt;
+
 use reflector::Reflector;
 use rotor::Rotor;
 
@@ -34,12 +36,12 @@ impl Enigma {
     /// Returns the substitution of a character, and advances
     /// the rotors if the input character was alphabetic.
     pub fn encrypt_char(&mut self, c: char) -> char {
-        let encrypted_char = self.substitute(c);
-
-        if c.is_alphabetic() {
-            self.advance();
+        if !c.is_ascii() || !c.is_alphabetic() {
+            return c;
         }
 
+        let encrypted_char = self.substitute(c.to_ascii_uppercase());
+        self.advance();
         encrypted_char
     }
 
@@ -106,5 +108,16 @@ mod tests {
         let plaintext = enigma.encrypt(&ciphertext);
 
         assert_eq!(plaintext, msg);
+    }
+
+    #[test]
+    fn case_insensitive_encryption() {
+        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let ciphertext1 = enigma.encrypt("Test Message");
+
+        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let ciphertext2 = enigma.encrypt("TEST MESSAGE");
+
+        assert_eq!(ciphertext1, ciphertext2);
     }
 }
