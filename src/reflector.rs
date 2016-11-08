@@ -1,3 +1,5 @@
+use super::CharIndex;
+
 #[derive(Clone, Debug)]
 pub struct Reflector {
     mapping: Vec<char>,
@@ -11,7 +13,7 @@ impl Reflector {
     }
 
     pub fn reflect(&self, c: char) -> char {
-        self.mapping[c as usize - 65]
+        self.mapping[c.index()]
     }
 }
 

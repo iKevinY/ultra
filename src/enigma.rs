@@ -1,5 +1,6 @@
 use std::ascii::AsciiExt;
 
+use super::CharIndex;
 use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
@@ -19,13 +20,11 @@ impl Enigma {
     /// Enigma machine), `reflector` is one of `'A'`, `'B'`, or `'C'`, and
     /// `plugboard` is a string of whitespace-delimited pairs of characters.
     pub fn new(slow: usize, mid: usize, fast: usize, reflector: char, plugboard: &str) -> Enigma {
-        let reflector = (reflector as usize) - 65;
-
         Enigma {
             slow: ROTORS[slow - 1].clone(),
             mid: ROTORS[mid - 1].clone(),
             fast: ROTORS[fast - 1].clone(),
-            reflector: REFLECTORS[reflector].clone(),
+            reflector: REFLECTORS[reflector.index()].clone(),
             plugboard: Plugboard::new(plugboard),
         }
     }

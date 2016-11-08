@@ -1,5 +1,7 @@
 use std::iter::FromIterator;
 
+use super::{CharIndex, ToChar};
+
 #[derive(Clone, Debug)]
 pub struct Rotor {
     mapping: Vec<char>,
@@ -27,15 +29,13 @@ impl Rotor {
         let mut inverse = vec!['A'; 26];
 
         for (i, &c) in mapping.iter().enumerate() {
-            let index = ((c as u8) - 65) as usize;
-            let letter = ((i as u8) + 65) as char;
-            inverse[index % 26] = letter;
+            inverse[c.index() % 26] = i.to_char();
         }
 
         Rotor {
             mapping: mapping,
             inverse: inverse,
-            notches: Vec::from_iter(notches.chars().map(|c| (c as usize) - 65)),
+            notches: Vec::from_iter(notches.chars().map(|c| c.index())),
             offset: 0,
         }
     }
@@ -43,14 +43,14 @@ impl Rotor {
     /// Returns the substitution of a given character
     /// based on the current offset of the rotor.
     pub fn substitute(&self, c: char) -> char {
-        self.mapping[((c as usize) - 65 + self.offset) % 26]
+        self.mapping[(c.index() + self.offset) % 26]
     }
 
     /// Returns the substitution of a given character when run through
     /// the rotor in reverse (on the path back from the reflector).
     pub fn invert(&self, c: char) -> char {
-        let index = self.inverse[(c as usize) - 65] as usize - 65;
-        (((index + 26 - self.offset) % 26) + 65) as u8 as char
+        let index = self.inverse[c.index()].index();
+        ((index + 26 - self.offset) % 26).to_char()
     }
 
     /// Advances this rotor, returning `true` if the rotor adjacent to
