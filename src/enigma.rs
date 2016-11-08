@@ -1,5 +1,6 @@
 use std::ascii::AsciiExt;
 
+use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
 
@@ -9,13 +10,15 @@ pub struct Enigma {
     mid: Rotor,
     fast: Rotor,
     reflector: Reflector,
+    plugboard: Plugboard,
 }
 
 impl Enigma {
     /// Creates a new `Enigma`, where `slow`, `mid`, and `fast` are integers
     /// ranging from 1-8 (corresponding to rotors I through VIII of the real
-    /// Enigma machine), and `reflector` is one of `'A'`, `'B'`, or `'C'`.
-    pub fn new(slow: usize, mid: usize, fast: usize, reflector: char) -> Enigma {
+    /// Enigma machine), `reflector` is one of `'A'`, `'B'`, or `'C'`, and
+    /// `plugboard` is a string of whitespace-delimited pairs of characters.
+    pub fn new(slow: usize, mid: usize, fast: usize, reflector: char, plugboard: &str) -> Enigma {
         let reflector = (reflector as usize) - 65;
 
         Enigma {
@@ -23,6 +26,7 @@ impl Enigma {
             mid: ROTORS[mid - 1].clone(),
             fast: ROTORS[fast - 1].clone(),
             reflector: REFLECTORS[reflector].clone(),
+            plugboard: Plugboard::new(plugboard),
         }
     }
 
@@ -46,18 +50,20 @@ impl Enigma {
     }
 
 
-    /// Returns the substitution of a character, which is determined
-    /// by passing the character in sequence through rotors from
-    /// `fast` to `slow`, through the reflector, then inverted
-    /// through the rotors from `slow` to `fast`.
+    /// Returns the substitution of a character, which is determined by
+    /// passing the character in sequence through the plugboard, the rotors
+    /// from `fast` to `slow`, through the reflector, inverted through the
+    /// rotors from `slow` to `fast`, and finally through the plugboard.
     fn substitute(&self, c: char) -> char {
         if !c.is_alphabetic() {
             return c;
         }
 
+        let c = self.plugboard.map(c);
         let c = self.slow.substitute(self.mid.substitute(self.fast.substitute(c)));
         let c = self.reflector.reflect(c);
-        self.fast.invert(self.mid.invert(self.slow.invert(c)))
+        let c = self.fast.invert(self.mid.invert(self.slow.invert(c)));
+        self.plugboard.map(c)
     }
 
     /// Advances the `fast` rotor, and also advances the
@@ -100,11 +106,11 @@ mod tests {
     fn symmetrical_behaviour() {
         let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
 
-        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "AB YZ");
         let ciphertext = enigma.encrypt(msg);
 
         // Reset the machine to its original state
-        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "AB YZ");
         let plaintext = enigma.encrypt(&ciphertext);
 
         assert_eq!(plaintext, msg);
@@ -112,10 +118,10 @@ mod tests {
 
     #[test]
     fn case_insensitive_encryption() {
-        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "");
         let ciphertext1 = enigma.encrypt("Test Message");
 
-        let mut enigma = Enigma::new(1, 2, 3, 'B');
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "");
         let ciphertext2 = enigma.encrypt("TEST MESSAGE");
 
         assert_eq!(ciphertext1, ciphertext2);
