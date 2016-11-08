@@ -5,6 +5,8 @@ pub mod plugboard;
 pub mod reflector;
 pub mod rotor;
 
+mod constants;
+
 
 trait CharIndex {
     fn index(&self) -> usize;

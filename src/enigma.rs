@@ -5,6 +5,8 @@ use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
 
+use constants::{ROTORS, NOTCHES, REFLECTORS};
+
 #[derive(Clone, Debug)]
 pub struct Enigma {
     slow: Rotor,
@@ -80,28 +82,6 @@ impl Enigma {
         }
     }
 }
-
-
-const ROTORS: &'static [&'static str; 8] = &[
-    "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
-    "AJDKSIRUXBLHWTMCQGZNPYFVOE",
-    "BDFHJLCPRTXVZNYEIWGAKMUSQO",
-    "ESOVPZJAYQUIRHXLNFTGKDCMWB",
-    "VZBRGITYUPSDNHLXAWMJQOFECK",
-    "JPGVOUMFYQBENHZRDKASXLICTW",
-    "NZJHGRCXMYSWBOUFAIVLPEKQDT",
-    "FKQHTLXOCBJSPDZRAMEWNIUYGV",
-];
-
-const NOTCHES: &'static [&'static str; 8] = &[
-    "Q", "E", "V", "J", "Z", "ZM", "ZM", "ZM"
-];
-
-const REFLECTORS: &'static [&'static str; 3] = &[
-    "EJMZALYXVBWFCRQUONTSPIKHGD",
-    "YRUHQSLDPXNGOKMIEBFZCWVJAT",
-    "FVPJIAOYEDRZXWGCTKUQSBNMHL",
-];
 
 
 #[cfg(test)]
