@@ -1,3 +1,6 @@
+/// Enigma rotor and reflector information from Wikipedia:
+/// https://en.wikipedia.org/wiki/Enigma_rotor_details
+
 pub const ROTORS: &'static [&'static str; 8] = &[
     "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
     "AJDKSIRUXBLHWTMCQGZNPYFVOE",

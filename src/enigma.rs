@@ -21,6 +21,18 @@ impl Enigma {
     /// ranging from 1-8 (corresponding to rotors I through VIII of the real
     /// Enigma machine), `reflector` is one of `'A'`, `'B'`, or `'C'`, and
     /// `plugboard` is a string of whitespace-delimited pairs of characters.
+    ///
+    /// # Examples
+    ///
+    /// `Enigma` with rotors I, II, and III, using reflector B and a single
+    /// plugboard connection between 'P' and 'Y'.
+    ///
+    /// ```
+    /// use ultra::enigma::Enigma;
+    ///
+    /// let mut enigma = Enigma::new(1, 2, 3, 'B', "PY");
+    /// println!("{}", enigma.encrypt("ENIGMA"));
+    /// ```
     pub fn new(slow: usize, mid: usize, fast: usize, reflector: char, plugboard: &str) -> Enigma {
         let s = slow - 1;
         let m = mid - 1;
