@@ -1,5 +1,7 @@
 use std::iter::FromIterator;
 
+use super::CharIndex;
+
 #[derive(Clone, Debug)]
 pub struct Plugboard {
     mapping: Vec<char>,
@@ -14,8 +16,8 @@ impl Plugboard {
             let a = pair.chars().nth(0).unwrap();
             let b = pair.chars().nth(1).unwrap();
 
-            mapping[a as usize - 65] = b;
-            mapping[b as usize - 65] = a;
+            mapping[a.index()] = b;
+            mapping[b.index()] = a;
         }
 
         Plugboard {
@@ -24,7 +26,7 @@ impl Plugboard {
     }
 
     pub fn map(&self, c: char) -> char {
-        self.mapping[c as usize - 65]
+        self.mapping[c.index()]
     }
 }
 
