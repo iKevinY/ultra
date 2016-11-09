@@ -34,7 +34,21 @@ mod tests {
     use super::Plugboard;
 
     #[test]
-    fn plugboard_map() {
+    fn no_connections() {
+        let plugboard = Plugboard::new("");
+        assert_eq!(plugboard.map('A'), 'A');
+    }
+
+    #[test]
+    fn single_connection() {
+        let plugboard = Plugboard::new("AB");
+        assert_eq!(plugboard.map('A'), 'B');
+        assert_eq!(plugboard.map('B'), 'A');
+        assert_eq!(plugboard.map('C'), 'C');
+    }
+
+    #[test]
+    fn multiple_connections() {
         let plugboard = Plugboard::new("AB CD");
         assert_eq!(plugboard.map('A'), 'B');
         assert_eq!(plugboard.map('B'), 'A');
