@@ -8,6 +8,7 @@ pub struct Rotor {
     inverse: Vec<char>,
     notches: Vec<usize>,
     pub offset: usize,
+    initial_offset: usize,
 }
 
 impl Rotor {
@@ -37,6 +38,7 @@ impl Rotor {
             inverse: inverse,
             notches: Vec::from_iter(notches.chars().map(|c| c.index())),
             offset: 0,
+            initial_offset: 0,
         }
     }
 
@@ -66,6 +68,11 @@ impl Rotor {
     /// Returns true if the rotor is currently in a notch position.
     pub fn notch_position(&self) -> bool {
         self.notches.iter().any(|&n| n == self.offset)
+    }
+
+    /// Resets the rotor to its initial state.
+    pub fn reset(&mut self) {
+        self.offset = self.initial_offset;
     }
 }
 
@@ -97,6 +104,30 @@ mod tests {
     }
 
     #[test]
+    fn step_inverse() {
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
+        assert_eq!(rotor.invert('E'), 'A');
+        rotor.advance();
+        assert_eq!(rotor.invert('K'), 'D');
+        rotor.advance();
+        assert_eq!(rotor.invert('M'), 'K');
+    }
+
+    #[test]
+    fn reset_rotor() {
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q");
+        assert_eq!(rotor.offset, 0);
+
+        for _ in 0..10 {
+            rotor.advance();
+        }
+
+        assert_eq!(rotor.offset, 10);
+        rotor.reset();
+        assert_eq!(rotor.offset, 0);
+    }
+
+    #[test]
     fn inverse_mapping() {
         // Rotor I of the Enigma
         let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
@@ -112,16 +143,6 @@ mod tests {
             assert_eq!(c, rotor.invert(rotor.substitute(c)));
             rotor.advance();
         }
-    }
-
-    #[test]
-    fn step_inverse() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
-        assert_eq!(rotor.invert('E'), 'A');
-        rotor.advance();
-        assert_eq!(rotor.invert('K'), 'D');
-        rotor.advance();
-        assert_eq!(rotor.invert('M'), 'K');
     }
 
     #[test]

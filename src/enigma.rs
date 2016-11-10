@@ -97,6 +97,13 @@ impl Enigma {
         // Finally, advance the fast rotor
         self.fast.advance();
     }
+
+    /// Resets the `Enigma` to its initial state.
+    pub fn reset(&mut self) {
+        self.slow.reset();
+        self.mid.reset();
+        self.fast.reset();
+    }
 }
 
 
@@ -117,8 +124,7 @@ mod tests {
         let mut enigma = Enigma::new(1, 2, 3, 'B', "AB YZ");
         let ciphertext = enigma.encrypt(msg);
 
-        // Reset the machine to its original state
-        let mut enigma = Enigma::new(1, 2, 3, 'B', "AB YZ");
+        enigma.reset();
         let plaintext = enigma.encrypt(&ciphertext);
 
         assert_eq!(plaintext, msg);
@@ -129,7 +135,7 @@ mod tests {
         let mut enigma = Enigma::new(1, 2, 3, 'B', "");
         let ciphertext1 = enigma.encrypt("Test Message");
 
-        let mut enigma = Enigma::new(1, 2, 3, 'B', "");
+        enigma.reset();
         let ciphertext2 = enigma.encrypt("TEST MESSAGE");
 
         assert_eq!(ciphertext1, ciphertext2);
