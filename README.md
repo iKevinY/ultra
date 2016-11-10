@@ -9,6 +9,11 @@ This project's quadgram data and decryption algorithm is based on
 [James Lyons'] articles about the Enigma machine.
 
 
+## License
+
+`ultra.rs` is licensed under the [MIT License](LICENSE).
+
+
 [Travis Badge]: https://travis-ci.org/iKevinY/ultra.rs.svg?branch=master
 [Build Status]: https://travis-ci.org/iKevinY/ultra.rs
 
