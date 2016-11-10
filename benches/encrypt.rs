@@ -9,12 +9,12 @@ use ultra::enigma::Enigma;
 
 #[bench]
 fn encrypt_char(b: &mut Bencher) {
-    let mut enigma = Enigma::new(1, 2, 3, 'B', "AZ");
+    let mut enigma = Enigma::new("123", 'B', "AZ");
     b.iter(|| enigma.encrypt_char('A'));
 }
 
 #[bench]
 fn encrypt_msg(b: &mut Bencher) {
-    let mut enigma = Enigma::new(1, 2, 3, 'B', "AB CD");
+    let mut enigma = Enigma::new("123", 'B', "AB CD");
     b.iter(|| enigma.encrypt("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"));
 }
