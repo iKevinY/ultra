@@ -40,17 +40,22 @@ impl Rotor {
         }
     }
 
+    fn map(&self, c: char, mapping: &Vec<char>) -> char {
+        let index = mapping[(c.index() + self.offset) % 26].index();
+        (index + 26 - self.offset).to_char()
+    }
+
     /// Returns the substitution of a given character
     /// based on the current offset of the rotor.
     pub fn substitute(&self, c: char) -> char {
-        self.mapping[(c.index() + self.offset) % 26]
+        self.map(c, &self.mapping)
+
     }
 
     /// Returns the substitution of a given character when run through
     /// the rotor in reverse (on the path back from the reflector).
     pub fn invert(&self, c: char) -> char {
-        let index = self.inverse[c.index()].index();
-        ((index + 26 - self.offset) % 26).to_char()
+        self.map(c, &self.inverse)
     }
 
     /// Advances this rotor one position.
@@ -71,7 +76,7 @@ mod tests {
 
     #[test]
     fn char_substitution() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A");
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q");
         assert_eq!(rotor.substitute('A'), 'E');
         assert_eq!(rotor.substitute('B'), 'K');
     }
@@ -79,18 +84,16 @@ mod tests {
     #[test]
     fn step_rotor() {
         // Initialize
-        let mut rotor = Rotor::new("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "B");
-        assert_eq!(rotor.substitute('A'), 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q");
+        assert_eq!(rotor.substitute('A'), 'E');
 
-        // Step the rotor one position
         rotor.advance();
         assert_eq!(rotor.offset, 1);
-        assert_eq!(rotor.substitute('A'), 'B');
+        assert_eq!(rotor.substitute('A'), 'J');
 
-        // Moving from B to C should advance the next rotor
         rotor.advance();
         assert_eq!(rotor.offset, 2);
-        assert_eq!(rotor.substitute('A'), 'C');
+        assert_eq!(rotor.substitute('A'), 'K');
     }
 
     #[test]
@@ -116,9 +119,9 @@ mod tests {
         let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B");
         assert_eq!(rotor.invert('E'), 'A');
         rotor.advance();
-        assert_eq!(rotor.invert('K'), 'A');
+        assert_eq!(rotor.invert('K'), 'D');
         rotor.advance();
-        assert_eq!(rotor.invert('M'), 'A');
+        assert_eq!(rotor.invert('M'), 'K');
     }
 
     #[test]

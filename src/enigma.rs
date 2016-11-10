@@ -55,16 +55,15 @@ impl Enigma {
         msg.chars().map(|c| self.encrypt_char(c)).collect()
     }
 
-    /// Returns the substitution of a character, and advances
-    /// the rotors if the input character was alphabetic.
+    /// Advances the rotors then returns the substitution of
+    /// a character, if the input character was alphabetic.
     pub fn encrypt_char(&mut self, c: char) -> char {
         if !c.is_ascii() || !c.is_alphabetic() {
             return c;
         }
 
-        let encrypted_char = self.substitute(c.to_ascii_uppercase());
         self.advance();
-        encrypted_char
+        self.substitute(c.to_ascii_uppercase())
     }
 
 
@@ -104,6 +103,12 @@ impl Enigma {
 #[cfg(test)]
 mod tests {
     use super::Enigma;
+
+    #[test]
+    fn expected_ciphertext() {
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "");
+        assert_eq!(enigma.encrypt("AAAAAAAA"), "BDZGOWCX");
+    }
 
     #[test]
     fn symmetrical_behaviour() {

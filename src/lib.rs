@@ -29,6 +29,6 @@ trait ToChar {
 
 impl ToChar for usize {
     fn to_char(&self) -> char {
-        (*self as u8 + 65) as char
+        ((*self % 26) as u8 + 65) as char
     }
 }
