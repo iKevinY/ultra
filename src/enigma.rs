@@ -87,11 +87,16 @@ impl Enigma {
     /// Advances the `fast` rotor, and also advances the
     /// `mid` and `slow` rotors if appropriate.
     fn advance(&mut self) {
-        if self.fast.advance() {
-            if self.mid.advance() {
-                self.slow.advance();
-            }
+        // Check for double-rotation situation
+        if self.mid.notch_position() {
+            self.mid.advance();
+            self.slow.advance();
+        } else if self.fast.notch_position() {
+            self.mid.advance();
         }
+
+        // Finally, advance the fast rotor
+        self.fast.advance();
     }
 }
 
@@ -123,5 +128,20 @@ mod tests {
         let ciphertext2 = enigma.encrypt("TEST MESSAGE");
 
         assert_eq!(ciphertext1, ciphertext2);
+    }
+
+    #[test]
+    fn repetition_period() {
+        // Due to the double-rotation of the middle rotor, the Enigma
+        // has a period of 26 * 25 * 26 rather the expected 26^3.
+        let mut enigma = Enigma::new(1, 2, 3, 'B', "");
+
+        for _ in 0..(26 * 25 * 26) {
+            enigma.advance();
+        }
+
+        assert_eq!(enigma.slow.offset, 0);
+        assert_eq!(enigma.mid.offset, 0);
+        assert_eq!(enigma.fast.offset, 0);
     }
 }

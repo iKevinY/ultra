@@ -7,7 +7,7 @@ pub struct Rotor {
     mapping: Vec<char>,
     inverse: Vec<char>,
     notches: Vec<usize>,
-    offset: usize,
+    pub offset: usize,
 }
 
 impl Rotor {
@@ -53,12 +53,14 @@ impl Rotor {
         ((index + 26 - self.offset) % 26).to_char()
     }
 
-    /// Advances this rotor, returning `true` if the rotor adjacent to
-    /// it should be advanced as well, otherwise `false`.
-    pub fn advance(&mut self) -> bool {
-        let advance_next = self.notches.iter().any(|&n| n == self.offset);
+    /// Advances this rotor one position.
+    pub fn advance(&mut self) {
         self.offset = (self.offset + 1) % 26;
-        advance_next
+    }
+
+    /// Returns true if the rotor is currently in a notch position.
+    pub fn notch_position(&self) -> bool {
+        self.notches.iter().any(|&n| n == self.offset)
     }
 }
 
@@ -81,12 +83,12 @@ mod tests {
         assert_eq!(rotor.substitute('A'), 'A');
 
         // Step the rotor one position
-        assert!(!rotor.advance());
+        rotor.advance();
         assert_eq!(rotor.offset, 1);
         assert_eq!(rotor.substitute('A'), 'B');
 
         // Moving from B to C should advance the next rotor
-        assert!(rotor.advance());
+        rotor.advance();
         assert_eq!(rotor.offset, 2);
         assert_eq!(rotor.substitute('A'), 'C');
     }
