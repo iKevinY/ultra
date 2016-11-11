@@ -7,8 +7,9 @@ pub struct Rotor {
     mapping: Vec<char>,
     inverse: Vec<char>,
     notches: Vec<usize>,
-    key_setting: usize,
     pub offset: usize,
+    key_setting: usize,
+    ring_setting: usize,
 }
 
 impl Rotor {
@@ -16,7 +17,7 @@ impl Rotor {
     /// containing some ordering of all letters in the alphabet, `notches`
     /// is a `&str` where each character in the string corresponds to a
     /// single notch in the rotor, and `key` is the rotor's key setting.
-    pub fn new(mapping: &str, notches: &str, key: char) -> Rotor {
+    pub fn new(mapping: &str, notches: &str, key: char, ring: char) -> Rotor {
         let mapping: Vec<char> = mapping.chars().collect();
 
         if mapping.len() != 26 {
@@ -33,14 +34,16 @@ impl Rotor {
             mapping: mapping,
             inverse: inverse,
             notches: Vec::from_iter(notches.chars().map(|c| c.index())),
-            key_setting: key.index(),
             offset: key.index(),
+            key_setting: key.index(),
+            ring_setting: ring.index(),
         }
     }
 
     fn map(&self, c: char, mapping: &Vec<char>) -> char {
-        let index = mapping[(c.index() + self.offset) % 26].index();
-        (index + 26 - self.offset).to_char()
+        let offset = 26 + self.offset - self.ring_setting;
+        let index = mapping[(c.index() + offset) % 26].index();
+        (index + 52 - offset).to_char()
     }
 
     /// Returns the substitution of a given character
@@ -79,14 +82,14 @@ mod tests {
 
     #[test]
     fn char_substitution() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A');
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
         assert_eq!(rotor.substitute('A'), 'E');
         assert_eq!(rotor.substitute('B'), 'K');
     }
 
     #[test]
     fn step_rotor() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
         assert_eq!(rotor.substitute('A'), 'E');
 
         rotor.advance();
@@ -100,7 +103,7 @@ mod tests {
 
     #[test]
     fn step_inverse() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
         assert_eq!(rotor.invert('E'), 'A');
         rotor.advance();
         assert_eq!(rotor.invert('K'), 'D');
@@ -110,13 +113,19 @@ mod tests {
 
     #[test]
     fn key_setting() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'D');
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'D', 'A');
         assert_eq!(rotor.offset, 3)
     }
 
     #[test]
+    fn ring_setting() {
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'B');
+        assert_eq!(rotor.substitute('A'), 'K');
+    }
+
+    #[test]
     fn reset_rotor() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
         assert_eq!(rotor.offset, 0);
 
         for _ in 0..10 {
@@ -131,14 +140,14 @@ mod tests {
     #[test]
     fn inverse_mapping() {
         // Rotor I of the Enigma
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "A", 'A');
+        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A', 'A');
         let inverse: String = rotor.inverse.into_iter().collect();
         assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
     }
 
     #[test]
     fn matching_inverses() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A');
+        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A', 'A');
         for i in 65u8..91u8 {
             let c = i as char;
             assert_eq!(c, rotor.invert(rotor.substitute(c)));
@@ -147,8 +156,8 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Rotor mappings must be 26 characters long.")]
+    #[should_panic]
     fn invalid_rotor() {
-        Rotor::new("ABC", "A", 'A');
+        Rotor::new("ABC", "A", 'A', 'A');
     }
 }
