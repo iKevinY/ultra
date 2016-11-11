@@ -19,35 +19,39 @@ pub struct Enigma {
 impl Enigma {
     /// Creates a new `Enigma`, where `rotors` is a string of three digits
     /// ranging from 1-8 (corresponding to rotors I through VIII of the real
-    /// Enigma machine), `reflector` is one of `'A'`, `'B'`, or `'C'`, and
+    /// Enigma machine), `keys` is a three character string containing the
+    /// key setting, `reflector` is one of `'A'`, `'B'`, or `'C'`, and
     /// `plugboard` is a string of whitespace-delimited pairs of characters.
     ///
     /// # Examples
     ///
-    /// `Enigma` with rotors I, II, and III, using reflector B and a single
-    /// plugboard connection between 'P' and 'Y'.
+    /// `Enigma` with rotors I, II, and III, key setting `ABC`, reflector B,
+    /// and a single plugboard connection between 'P' and 'Y'.
     ///
     /// ```
     /// use ultra::enigma::Enigma;
     ///
-    /// let mut enigma = Enigma::new("123", 'B', "PY");
+    /// let mut enigma = Enigma::new("123", "ABC", 'B', "PY");
     /// println!("{}", enigma.encrypt("ENIGMA"));
     /// ```
-    pub fn new(rotors: &str, reflector: char, plugboard: &str) -> Enigma {
+    pub fn new(rotors: &str, keys: &str, reflector: char, plugboard: &str) -> Enigma {
         let rotors: Vec<u32> = rotors.chars().filter_map(|c| c.to_digit(10)).collect();
 
         if rotors.len() != 3 {
             panic!("Exactly 3 rotors must be given.");
         }
 
+        // Get indicies from rotor numbers
         let s = rotors[0] as usize - 1;
         let m = rotors[1] as usize - 1;
         let f = rotors[2] as usize - 1;
 
+        let keys: Vec<char> = keys.chars().collect();
+
         Enigma {
-            slow: Rotor::new(ROTORS[s], NOTCHES[s]),
-            mid: Rotor::new(ROTORS[m], NOTCHES[m]),
-            fast: Rotor::new(ROTORS[f], NOTCHES[f]),
+            slow: Rotor::new(ROTORS[s], NOTCHES[s], keys[0]),
+            mid: Rotor::new(ROTORS[m], NOTCHES[m], keys[1]),
+            fast: Rotor::new(ROTORS[f], NOTCHES[f], keys[2]),
             reflector: Reflector::new(REFLECTORS[reflector.index()]),
             plugboard: Plugboard::new(plugboard),
         }
@@ -118,7 +122,7 @@ mod tests {
 
     #[test]
     fn expected_ciphertext() {
-        let mut enigma = Enigma::new("123", 'B', "");
+        let mut enigma = Enigma::new("123", "AAA", 'B', "");
         assert_eq!(enigma.encrypt("AAAAAAAA"), "BDZGOWCX");
     }
 
@@ -126,7 +130,7 @@ mod tests {
     fn symmetrical_behaviour() {
         let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
 
-        let mut enigma = Enigma::new("123", 'B', "AB YZ");
+        let mut enigma = Enigma::new("123", "AAA", 'B', "AB YZ");
         let ciphertext = enigma.encrypt(msg);
 
         enigma.reset();
@@ -137,7 +141,7 @@ mod tests {
 
     #[test]
     fn case_insensitive_encryption() {
-        let mut enigma = Enigma::new("123", 'B', "");
+        let mut enigma = Enigma::new("123", "AAA", 'B', "");
         let ciphertext1 = enigma.encrypt("Test Message");
 
         enigma.reset();
@@ -147,10 +151,16 @@ mod tests {
     }
 
     #[test]
+    fn key_settings() {
+        let mut enigma = Enigma::new("123", "CAT", 'B', "");
+        assert_eq!(enigma.encrypt("AAAAA"), "XLEPK");
+    }
+
+    #[test]
     fn repetition_period() {
         // Due to the double-rotation of the middle rotor, the Enigma
         // has a period of 26 * 25 * 26 rather the expected 26^3.
-        let mut enigma = Enigma::new("123", 'B', "");
+        let mut enigma = Enigma::new("123", "AAA", 'B', "");
 
         for _ in 0..(26 * 25 * 26) {
             enigma.advance();
@@ -163,7 +173,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn invalid_enigma() {
-        Enigma::new("12", 'B', "");
+    fn invalid_rotors() {
+        Enigma::new("12", "AAA", 'B', "");
     }
 }
