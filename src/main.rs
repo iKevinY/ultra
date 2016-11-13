@@ -1,17 +1,21 @@
+#[macro_use]
+extern crate clap;
 extern crate ultra;
 
-use std::io::{stdin, stdout, Write};
 use ultra::enigma::Enigma;
 
 fn main() {
-    let mut msg = String::new();
-    print!("Message to encrypt: ");
-    stdout().flush().unwrap();
-    stdin().read_line(&mut msg).unwrap();
-    let msg = msg.trim_right();
+    let app = clap_app!(ultra =>
+        (version: crate_version!())
+        (@setting ArgRequiredElseHelp)
+        (@setting ColoredHelp)
+        (@arg MESSAGE: +required "The message to encrypt/decrypt")
+    );
 
-    if !msg.is_empty() {
+    let matches = app.get_matches();
+
+    if let Some(msg) = matches.value_of("MESSAGE") {
         let mut enigma = Enigma::new("123", "AAA", "AAA", 'B', "");
-        println!("Ciphertext: {}", enigma.encrypt(msg))
+        println!("{}", enigma.encrypt(msg))
     }
 }

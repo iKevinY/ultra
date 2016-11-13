@@ -19,4 +19,5 @@ doc = false
 path = "src/lib.rs"
 
 [dependencies]
+clap = "2.18.0"
 lazy_static = "0.2"
