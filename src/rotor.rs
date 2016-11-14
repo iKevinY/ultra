@@ -2,6 +2,8 @@ use std::iter::FromIterator;
 
 use super::{CharIndex, ToChar};
 
+use constants::{ROTORS, NOTCHES};
+
 #[derive(Clone, Debug)]
 pub struct Rotor {
     mapping: Vec<char>,
@@ -16,7 +18,8 @@ impl Rotor {
     /// Creates a new `Rotor`, where `mapping` is a 26-character `&str`
     /// containing some ordering of all letters in the alphabet, `notches`
     /// is a `&str` where each character in the string corresponds to a
-    /// single notch in the rotor, and `key` is the rotor's key setting.
+    /// single notch in the rotor, and `key` and `ring` are the rotor's
+    /// key and ring settings respectively.
     pub fn new(mapping: &str, notches: &str, key: char, ring: char) -> Rotor {
         let mapping: Vec<char> = mapping.chars().collect();
 
@@ -38,6 +41,13 @@ impl Rotor {
             key_setting: key.index(),
             ring_setting: ring.index(),
         }
+    }
+
+    /// Creates a new `Rotor`, where `num` is a number from 1-8 corresponding
+    /// to rotors I through VIII of the Enigma machine, and `key` and `ring`
+    /// are the rotor's key and ring settings respectively.
+    pub fn from_enigma(num: usize, key: char, ring: char) -> Rotor {
+        Rotor::new(ROTORS[num - 1], NOTCHES[num - 1], key, ring)
     }
 
     fn map(&self, c: char, mapping: &Vec<char>) -> char {
@@ -82,14 +92,14 @@ mod tests {
 
     #[test]
     fn char_substitution() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
+        let rotor = Rotor::from_enigma(1, 'A', 'A');
         assert_eq!(rotor.substitute('A'), 'E');
         assert_eq!(rotor.substitute('B'), 'K');
     }
 
     #[test]
     fn step_rotor() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
+        let mut rotor = Rotor::from_enigma(1, 'A', 'A');
         assert_eq!(rotor.substitute('A'), 'E');
 
         rotor.advance();
@@ -103,7 +113,7 @@ mod tests {
 
     #[test]
     fn step_inverse() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
+        let mut rotor = Rotor::from_enigma(1, 'A', 'A');
         assert_eq!(rotor.invert('E'), 'A');
         rotor.advance();
         assert_eq!(rotor.invert('K'), 'D');
@@ -113,19 +123,19 @@ mod tests {
 
     #[test]
     fn key_setting() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'D', 'A');
+        let rotor = Rotor::from_enigma(1, 'D', 'A');
         assert_eq!(rotor.offset, 3)
     }
 
     #[test]
     fn ring_setting() {
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'B');
+        let rotor = Rotor::from_enigma(1, 'A', 'B');
         assert_eq!(rotor.substitute('A'), 'K');
     }
 
     #[test]
     fn reset_rotor() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q", 'A', 'A');
+        let mut rotor = Rotor::from_enigma(1, 'A', 'A');
         assert_eq!(rotor.offset, 0);
 
         for _ in 0..10 {
@@ -139,15 +149,14 @@ mod tests {
 
     #[test]
     fn inverse_mapping() {
-        // Rotor I of the Enigma
-        let rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A', 'A');
+        let rotor = Rotor::from_enigma(1, 'A', 'A');
         let inverse: String = rotor.inverse.into_iter().collect();
         assert_eq!(&inverse, "UWYGADFPVZBECKMTHXSLRINQOJ");
     }
 
     #[test]
     fn matching_inverses() {
-        let mut rotor = Rotor::new("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "B", 'A', 'A');
+        let mut rotor = Rotor::from_enigma(1, 'A', 'A');
         for i in 65u8..91u8 {
             let c = i as char;
             assert_eq!(c, rotor.invert(rotor.substitute(c)));

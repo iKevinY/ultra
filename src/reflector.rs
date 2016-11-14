@@ -1,15 +1,22 @@
 use super::CharIndex;
 
+use constants::REFLECTORS;
+
 #[derive(Clone, Debug)]
 pub struct Reflector {
     mapping: Vec<char>,
 }
 
 impl Reflector {
+    /// Creates a new `Reflector` with a given 26-character mapping.
     pub fn new(mapping: &str) -> Reflector {
         Reflector {
             mapping: mapping.chars().collect(),
         }
+    }
+
+    pub fn from_enigma(reflector: char) -> Reflector {
+        Reflector::new(REFLECTORS[reflector.index()])
     }
 
     pub fn reflect(&self, c: char) -> char {

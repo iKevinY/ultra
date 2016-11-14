@@ -1,11 +1,8 @@
 use std::ascii::AsciiExt;
 
-use super::CharIndex;
 use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
-
-use constants::{ROTORS, NOTCHES, REFLECTORS};
 
 #[derive(Clone, Debug)]
 pub struct Enigma {
@@ -36,25 +33,24 @@ impl Enigma {
     /// println!("{}", enigma.encrypt("ENIGMA"));
     /// ```
     pub fn new(rotors: &str, keys: &str, rings: &str, reflector: char, plugboard: &str) -> Enigma {
-        let rotors: Vec<u32> = rotors.chars().filter_map(|c| c.to_digit(10)).collect();
+        let rotors: Vec<usize> = rotors
+            .chars()
+            .filter_map(|c| c.to_digit(10))
+            .map(|n| n as usize)
+            .collect();
 
         if rotors.len() != 3 {
             panic!("Exactly 3 rotors must be given.");
         }
 
-        // Get indicies from rotor numbers
-        let s = rotors[0] as usize - 1;
-        let m = rotors[1] as usize - 1;
-        let f = rotors[2] as usize - 1;
-
         let keys: Vec<char> = keys.chars().collect();
         let rings: Vec<char> = rings.chars().collect();
 
         Enigma {
-            slow: Rotor::new(ROTORS[s], NOTCHES[s], keys[0], rings[0]),
-            mid: Rotor::new(ROTORS[m], NOTCHES[m], keys[1], rings[1]),
-            fast: Rotor::new(ROTORS[f], NOTCHES[f], keys[2], rings[2]),
-            reflector: Reflector::new(REFLECTORS[reflector.index()]),
+            slow: Rotor::from_enigma(rotors[0], keys[0], rings[0]),
+            mid: Rotor::from_enigma(rotors[1], keys[1], rings[1]),
+            fast: Rotor::from_enigma(rotors[2], keys[2], rings[2]),
+            reflector: Reflector::from_enigma(reflector),
             plugboard: Plugboard::new(plugboard),
         }
     }
