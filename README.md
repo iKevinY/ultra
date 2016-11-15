@@ -1,4 +1,4 @@
-# ultra.rs [![Build Status][Travis Badge]][Build Status]
+# ultra.rs [![Build Status][Travis Badge]][Build Status] [![crates.io][crates.io Badge]][crates.io] [![docs.rs][docs.rs Badge]][docs.rs]
 
 Cryptanalysis of the Enigma in Rust.
 
@@ -16,5 +16,9 @@ This project's quadgram data and decryption algorithm is based on
 
 [Travis Badge]: https://travis-ci.org/iKevinY/ultra.rs.svg?branch=master
 [Build Status]: https://travis-ci.org/iKevinY/ultra.rs
+[crates.io Badge]: https://img.shields.io/crates/v/ultra.svg
+[crates.io]: https://crates.io/crates/ultra
+[docs.rs Badge]: https://docs.rs/ultra/badge.svg
+[docs.rs]: https://docs.rs/ultra
 
 [James Lyons']: http://practicalcryptography.com/ciphers/mechanical-era/enigma/
