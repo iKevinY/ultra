@@ -3,12 +3,14 @@ extern crate clap;
 extern crate ultra;
 
 use ultra::enigma::Enigma;
+use ultra::decrypt::decrypt;
 
 fn main() {
     let app = clap_app!(ultra =>
         (version: crate_version!())
         (@setting ArgRequiredElseHelp)
         (@setting ColoredHelp)
+        (@arg decrypt: --decrypt -d "Decrypt a given piece of ciphertext")
         (@arg ROTORS: --rotor -w +takes_value "Rotor order (default: \"123\")")
         (@arg KEY: --key -k +takes_value "Key settings (default: \"AAA\")")
         (@arg RING: --ring -r +takes_value "Ring settings (default: \"AAA\")")
@@ -19,6 +21,13 @@ fn main() {
     let matches = app.get_matches();
 
     if let Some(msg) = matches.value_of("MESSAGE") {
+        if matches.is_present("decrypt") {
+            let (plaintext, key, ring, rotor) = decrypt(msg);
+            println!("{}", plaintext);
+            println!("(Key Setting: {}, Ring Setting: {}, Rotors: {})", key, ring, rotor);
+            return;
+        }
+
         let rotors = match matches.value_of("ROTORS") {
             Some(rotors) => rotors,
             None => "123"

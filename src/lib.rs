@@ -2,6 +2,8 @@
 
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate itertools;
 
 pub mod decrypt;
 pub mod enigma;
