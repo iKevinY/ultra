@@ -2,10 +2,11 @@
 name = "ultra"
 version = "0.1.0"
 authors = ["Kevin Yap <me@kevinyap.ca>"]
-description = "Cryptanalysis of the Engima in Rust."
+description = "Cryptanalysis of the Engima."
 keywords = ["enigma", "cryptanalysis"]
 homepage = "https://github.com/iKevinY/ultra.rs"
 repository = "https://github.com/iKevinY/ultra.rs"
+documentation = "https://docs.rs/ultra"
 readme = "README.md"
 license = "MIT"
 
