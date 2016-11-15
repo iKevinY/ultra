@@ -44,7 +44,7 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
     let mut best_rotor = "123".to_owned();
 
     // Rotor and key settings (60*26^3 == 1,054,560 decryptions)
-    let r = vec!['1', '2', '3', '4', '5'].into_iter();
+    let r = "12345".chars();
 
     for (slow, mid, fast) in iproduct!(r.clone(), r.clone(), r.clone()) {
         // Skip rotor combinations that contain duplicates
