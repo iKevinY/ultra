@@ -19,36 +19,20 @@ fn main() {
     );
 
     let matches = app.get_matches();
+    let msg = matches.value_of("MESSAGE").unwrap();
 
-    if let Some(msg) = matches.value_of("MESSAGE") {
-        if matches.is_present("decrypt") {
-            let (plaintext, key, ring, rotor) = decrypt(msg);
-            println!("{}", plaintext);
-            println!("(Key Setting: {}, Ring Setting: {}, Rotors: {})", key, ring, rotor);
-            return;
-        }
-
-        let rotors = match matches.value_of("ROTORS") {
-            Some(rotors) => rotors,
-            None => "123"
-        };
-
-        let key = match matches.value_of("KEY") {
-            Some(key) => key,
-            None => "AAA"
-        };
-
-        let ring = match matches.value_of("RING") {
-            Some(ring) => ring,
-            None => "AAA"
-        };
-
-        let plugboard = match matches.value_of("PLUGBOARD") {
-            Some(plugboard) => plugboard,
-            None => ""
-        };
-
-        let mut enigma = Enigma::new(rotors, key, ring, 'B', plugboard);
-        println!("{}", enigma.encrypt(msg))
+    if matches.is_present("decrypt") {
+        let (plaintext, key, ring, rotor) = decrypt(msg);
+        println!("{}", plaintext);
+        println!("(Key Setting: {}, Ring Setting: {}, Rotors: {})", key, ring, rotor);
+        return;
     }
+
+    let rotors = matches.value_of("ROTORS").unwrap_or("123");
+    let key = matches.value_of("KEY").unwrap_or("AAA");
+    let ring = matches.value_of("RING").unwrap_or("AAA");
+    let plugboard = matches.value_of("PLUGBOARD").unwrap_or("");
+
+    let mut enigma = Enigma::new(rotors, key, ring, 'B', plugboard);
+    println!("{}", enigma.encrypt(msg))
 }
