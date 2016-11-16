@@ -14,8 +14,8 @@ This project's quadgram data and decryption algorithm is based on
 `ultra` is licensed under the [MIT License](LICENSE).
 
 
-[Travis Badge]: https://travis-ci.org/iKevinY/ultra.rs.svg?branch=master
-[Build Status]: https://travis-ci.org/iKevinY/ultra.rs
+[Travis Badge]: https://travis-ci.org/iKevinY/ultra.svg?branch=master
+[Build Status]: https://travis-ci.org/iKevinY/ultra
 [crates.io Badge]: https://img.shields.io/crates/v/ultra.svg
 [crates.io]: https://crates.io/crates/ultra
 [docs.rs Badge]: https://docs.rs/ultra/badge.svg
