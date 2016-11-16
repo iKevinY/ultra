@@ -1,4 +1,4 @@
-# ultra.rs [![Build Status][Travis Badge]][Build Status] [![crates.io][crates.io Badge]][crates.io] [![docs.rs][docs.rs Badge]][docs.rs]
+# ultra [![Build Status][Travis Badge]][Build Status] [![crates.io][crates.io Badge]][crates.io] [![docs.rs][docs.rs Badge]][docs.rs]
 
 Cryptanalysis of the Enigma in Rust.
 
@@ -11,7 +11,7 @@ This project's quadgram data and decryption algorithm is based on
 
 ## License
 
-`ultra.rs` is licensed under the [MIT License](LICENSE).
+`ultra` is licensed under the [MIT License](LICENSE).
 
 
 [Travis Badge]: https://travis-ci.org/iKevinY/ultra.rs.svg?branch=master
