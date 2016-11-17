@@ -19,6 +19,9 @@ doc = false
 [lib]
 path = "src/lib.rs"
 
+[profile.test]
+opt-level = 2
+
 [dependencies]
 clap = "2.18.0"
 itertools = "0.5"
