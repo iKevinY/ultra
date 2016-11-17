@@ -3,6 +3,41 @@
 Cryptanalysis of the Enigma in Rust.
 
 
+## Installation
+
+`ultra` can be installed from crates.io using Cargo:
+
+```
+$ cargo install ultra
+```
+
+
+## Usage
+
+Encrypt a message with rotors `1-4-2`, key setting `DOG`, and ring setting `CAT`:
+
+```bash
+$ ultra --rotor=142 --key=DOG --ring=CAT ${message}
+```
+
+Encrypt a message using random Enigma settings:
+
+```bash
+$ ultra --randomize ${message}
+```
+
+Attempt to decrypt a given piece of ciphertext:
+
+```bash
+$ ultra --decrypt ${message}
+```
+
+> **Note**: Decryption relies on quadgram frequencies to infer the original
+Enigma machine settings; as a result, it is very likely that short messages
+will be decrypted incorrectly. Additionally, decryption will not work for
+messages that were encrypted with any plugboard plugs active.
+
+
 ## References
 
 This project's quadgram data and decryption algorithm is based on
