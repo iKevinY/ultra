@@ -119,12 +119,6 @@ mod tests {
     use super::Enigma;
 
     #[test]
-    fn expected_ciphertext() {
-        let mut enigma = Enigma::new("123", "BAT", "HTU", 'B', "");
-        assert_eq!(enigma.encrypt("AAAAAAAA"), "ZWGJGTOW");
-    }
-
-    #[test]
     fn symmetrical_behaviour() {
         let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
 
