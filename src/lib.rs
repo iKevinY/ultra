@@ -12,7 +12,7 @@ mod plugboard;
 mod reflector;
 mod rotor;
 
-pub use decrypt::decrypt;
+pub use decrypt::{decrypt, qgram_score};
 pub use enigma::Enigma;
 
 

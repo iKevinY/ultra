@@ -4,7 +4,7 @@ extern crate ultra;
 extern crate test;
 
 use test::Bencher;
-use ultra::decrypt::qgram_score;
+use ultra::qgram_score;
 
 
 #[bench]
