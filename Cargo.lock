@@ -1,6 +1,6 @@
 [root]
 name = "ultra"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "clap 2.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
