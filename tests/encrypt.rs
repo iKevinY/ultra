@@ -1,6 +1,6 @@
 extern crate ultra;
 
-use ultra::enigma::Enigma;
+use ultra::Enigma;
 
 #[test]
 fn expected_ciphertext() {

@@ -27,7 +27,7 @@ impl Enigma {
     /// `DEF`, reflector B, and a plugboard connection between 'P' and 'Y'.
     ///
     /// ```
-    /// use ultra::enigma::Enigma;
+    /// use ultra::Enigma;
     ///
     /// let mut enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
     /// println!("{}", enigma.encrypt("ENIGMA"));
@@ -79,10 +79,6 @@ impl Enigma {
     /// from `fast` to `slow`, through the reflector, inverted through the
     /// rotors from `slow` to `fast`, and finally through the plugboard.
     fn substitute(&self, c: char) -> char {
-        if !c.is_alphabetic() {
-            return c;
-        }
-
         let mut c = self.plugboard.map(c);
         c = self.slow.substitute(self.mid.substitute(self.fast.substitute(c)));
         c = self.reflector.reflect(c);

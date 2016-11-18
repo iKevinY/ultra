@@ -5,13 +5,15 @@ extern crate lazy_static;
 #[macro_use]
 extern crate itertools;
 
-pub mod decrypt;
-pub mod enigma;
-pub mod plugboard;
-pub mod reflector;
-pub mod rotor;
-
+mod decrypt;
 mod constants;
+mod enigma;
+mod plugboard;
+mod reflector;
+mod rotor;
+
+pub use decrypt::decrypt;
+pub use enigma::Enigma;
 
 
 trait CharIndex {

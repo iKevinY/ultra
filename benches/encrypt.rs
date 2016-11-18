@@ -4,7 +4,7 @@ extern crate ultra;
 extern crate test;
 
 use test::Bencher;
-use ultra::enigma::Enigma;
+use ultra::Enigma;
 
 
 #[bench]

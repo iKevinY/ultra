@@ -5,8 +5,8 @@ extern crate ultra;
 
 use rand::Rng;
 
-use ultra::enigma::Enigma;
-use ultra::decrypt::decrypt;
+use ultra::Enigma;
+use ultra::decrypt;
 
 fn main() {
     let app = clap_app!(ultra =>
