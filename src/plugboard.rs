@@ -13,8 +13,9 @@ impl Plugboard {
         let mut mapping = Vec::from_iter(alpha.chars());
 
         for pair in pairs.split_whitespace() {
-            let a = pair.chars().nth(0).unwrap();
-            let b = pair.chars().nth(1).unwrap();
+            let pair: Vec<char> = pair.chars().collect();
+            let a = pair[0];
+            let b = pair[1];
 
             mapping[a.index()] = b;
             mapping[b.index()] = a;

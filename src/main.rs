@@ -4,9 +4,8 @@ extern crate rand;
 extern crate ultra;
 
 use rand::Rng;
+use ultra::{Enigma, decrypt};
 
-use ultra::Enigma;
-use ultra::decrypt;
 
 fn main() {
     let app = clap_app!(ultra =>
@@ -36,7 +35,7 @@ fn main() {
 
         let rotors: String = {
             let mut rotor_pool: Vec<char> = "12345".chars().collect();
-            let mut rotors: Vec<char> = Vec::with_capacity(3);
+            let mut rotors = Vec::with_capacity(3);
 
             for _ in 0..3 {
                 let len = rotor_pool.len();

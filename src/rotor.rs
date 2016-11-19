@@ -1,7 +1,6 @@
 use std::iter::FromIterator;
 
 use super::{CharIndex, ToChar};
-
 use constants::{ROTORS, NOTCHES};
 
 #[derive(Clone, Debug)]
@@ -50,7 +49,7 @@ impl Rotor {
         Rotor::new(ROTORS[num - 1], NOTCHES[num - 1], key, ring)
     }
 
-    fn map(&self, c: char, mapping: &Vec<char>) -> char {
+    fn map(&self, c: char, mapping: &[char]) -> char {
         let offset = 26 + self.offset - self.ring_setting;
         let index = mapping[(c.index() + offset) % 26].index();
         (index + 52 - offset).to_char()
@@ -157,7 +156,7 @@ mod tests {
     #[test]
     fn matching_inverses() {
         let mut rotor = Rotor::from_enigma(1, 'A', 'A');
-        for i in 65u8..91u8 {
+        for i in b'A'..(b'Z' + 1) {
             let c = i as char;
             assert_eq!(c, rotor.invert(rotor.substitute(c)));
             rotor.advance();

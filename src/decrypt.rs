@@ -12,9 +12,9 @@ lazy_static! {
         let mut qgrams = Vec::new();
 
         for line in f.lines() {
-            let mut iter = line.split(' ');
-            let qgram = iter.next().unwrap();
-            let count = iter.next().unwrap().parse().unwrap();
+            let line: Vec<&str> = line.split(' ').collect();
+            let qgram = line[0];
+            let count = line[1].parse().unwrap();
 
             qgrams.push((qgram, count));
             total += count;
