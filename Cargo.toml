@@ -1,6 +1,6 @@
 [package]
 name = "ultra"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Kevin Yap <me@kevinyap.ca>"]
 description = "Cryptanalysis of the Engima."
 keywords = ["enigma", "cryptanalysis"]
