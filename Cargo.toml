@@ -26,7 +26,7 @@ path = "src/lib.rs"
 opt-level = 2
 
 [dependencies]
-clap = "2.18.0"
+clap = "2.20"
 itertools = "0.5"
 lazy_static = "0.2"
 rand = "0.3"
