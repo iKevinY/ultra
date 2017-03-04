@@ -10,6 +10,9 @@ documentation = "https://docs.rs/ultra"
 readme = "README.md"
 license = "MIT"
 
+[badges]
+travis-ci = { repository = "iKevinY/ultra" }
+
 [[bin]]
 name = "ultra"
 path = "src/main.rs"
