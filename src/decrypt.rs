@@ -1,4 +1,4 @@
-use std::f64::{EPSILON, MIN};
+use std::f64::{MIN};
 use std::iter::FromIterator;
 
 use super::{CharIndex, ToChar};
@@ -7,28 +7,18 @@ use super::enigma::Enigma;
 lazy_static! {
     static ref QGRAMS: Vec<f64> = {
         let f = include_str!("data/quadgrams.txt");
-
-        let mut total: usize = 0;
-        let mut qgrams = Vec::new();
+        let mut qgrams = vec![0.0; 456_976];  // 26^4 = 456,976
 
         for line in f.lines() {
-            let line: Vec<&str> = line.split(' ').collect();
-            let qgram = line[0];
-            let count = line[1].parse().unwrap();
+            let line: Vec<_> = line.split(' ').collect();
+            let qgram: &str = line[0];
+            let count: f64 = line[1].parse().unwrap();
 
-            qgrams.push((qgram, count));
-            total += count;
-        }
-
-        let mut v = vec![EPSILON.ln(); 456_976];
-
-        for (qgram, n) in qgrams {
-            let frequency = (n as f64) / (total as f64);
             let index = qgram.chars().fold(0, |acc, c| 26 * acc + c.index());
-            v[index] = frequency.ln();
+            qgrams[index] = count.ln();
         }
 
-        v
+        qgrams
     };
 }
 
@@ -122,12 +112,19 @@ pub fn qgram_score(msg: &str) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use super::qgram_score;
+    use super::{QGRAMS, qgram_score};
+
+    macro_rules! assert_approx_eq {
+        ($a:expr, $b:expr) => {
+            let (a, b) = (&$a, &$b);
+            assert!((*a - *b).abs() < 1.0e-6, "{} is not approximately equal to {}", *a, *b);
+        }
+    }
 
     #[test]
-    fn qgram_estimate() {
-        // Score should be approximately -138.3319940227875
-        assert!((qgram_score("THE QUICK BROWN FOX") + 138.3).abs() < 0.1);
+    fn qgram_estimates() {
+        assert_approx_eq!(QGRAMS[0], 8.81060879);
+        assert_approx_eq!(qgram_score("THE QUICK BROWN FOX"), 149.80102862);
     }
 
     #[test]
