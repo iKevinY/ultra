@@ -42,8 +42,9 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
             continue;
         }
 
+        let rotor = String::from_iter(vec![slow, mid, fast]);
+
         for (a, b, c) in iproduct!(0..26, 0..26, 0..26) {
-            let rotor = String::from_iter(vec![slow, mid, fast]);
             let key = String::from_iter(vec![a.to_char(), b.to_char(), c.to_char()]);
 
             let mut enigma = Enigma::new(&rotor, &key, "AAA", 'B', "");
@@ -54,7 +55,7 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
                 best_score = score;
                 best_msg = plaintext;
                 best_key = key;
-                best_rotor = rotor;
+                best_rotor = rotor.clone();
             }
         }
     }
