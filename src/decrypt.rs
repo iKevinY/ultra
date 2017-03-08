@@ -86,28 +86,19 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
 /// Strips all non-alphabetic characters from the given message string and
 /// returns the sum of the log-probabilities of each quadgram substring.
 pub fn qgram_score(msg: &str) -> f64 {
-    let msg: Vec<usize> = msg.chars()
+    let char_indices: Vec<usize> = msg.chars()
         .filter(|&c| c.is_alphabetic())
         .map(|c| c.index())
         .collect();
 
-    if msg.len() < 4 {
+    if char_indices.len() < 4 {
         panic!("Input string must be longer than 4 characters.");
     }
 
-    let mut sum = 0.0;
-
-    for i in 0..(msg.len() - 3) {
-        let a = msg[i];
-        let b = msg[i + 1];
-        let c = msg[i + 2];
-        let d = msg[i + 3];
-
-        let index = (((a * 26) + b) * 26 + c) * 26 + d;
-        sum += QGRAMS[index];
-    }
-
-    sum
+    char_indices.windows(4)
+        .map(|w| w.iter().fold(0, |acc, x| 26 * acc + x))
+        .map(|i| QGRAMS[i])
+        .sum()
 }
 
 
