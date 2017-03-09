@@ -1,4 +1,3 @@
-use std::f64::{MIN};
 use std::iter::FromIterator;
 
 use super::{CharIndex, ToChar};
@@ -27,7 +26,7 @@ lazy_static! {
 /// configurations, returning the tuple `(plaintext, key, ring, rotor)`
 /// corresponding to the most probable plaintext.
 pub fn decrypt(msg: &str) -> (String, String, String, String) {
-    let mut best_score = MIN;
+    let mut best_score = 0.0;
     let mut best_msg = msg.to_owned();
     let mut best_key = "AAA".to_owned();
     let mut best_ring = "AAA".to_owned();

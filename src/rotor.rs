@@ -52,14 +52,13 @@ impl Rotor {
     fn map(&self, c: char, mapping: &[char]) -> char {
         let offset = 26 + self.offset - self.ring_setting;
         let index = mapping[(c.index() + offset) % 26].index();
-        (index + 52 - offset).to_char()
+        (52 + index - offset).to_char()
     }
 
     /// Returns the substitution of a given character
     /// based on the current offset of the rotor.
     pub fn substitute(&self, c: char) -> char {
         self.map(c, &self.mapping)
-
     }
 
     /// Returns the substitution of a given character when run through

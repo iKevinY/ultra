@@ -47,10 +47,11 @@ fn main() {
 
         let mut key = String::with_capacity(3);
         let mut ring = String::with_capacity(3);
+        let alpha: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
 
         for _ in 0..3 {
-            key.push(rng.gen_range(b'A', b'Z' + 1) as char);
-            ring.push(rng.gen_range(b'A', b'Z' + 1) as char);
+            key.push(*rng.choose(&alpha).unwrap());
+            ring.push(*rng.choose(&alpha).unwrap());
         }
 
         let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', "");
