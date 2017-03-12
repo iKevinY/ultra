@@ -1,5 +1,8 @@
 use std::iter::FromIterator;
 
+use ordered_float::OrderedFloat;
+use rayon::prelude::*;
+
 use super::{CharIndex, ToChar};
 use super::enigma::Enigma;
 
@@ -26,57 +29,38 @@ lazy_static! {
 /// configurations, returning the tuple `(plaintext, key, ring, rotor)`
 /// corresponding to the most probable plaintext.
 pub fn decrypt(msg: &str) -> (String, String, String, String) {
-    let mut best_score = 0.0;
-    let mut best_msg = msg.to_owned();
-    let mut best_key = "AAA".to_owned();
-    let mut best_ring = "AAA".to_owned();
-    let mut best_rotor = "123".to_owned();
-
     // Rotor and key settings (60*26^3 == 1,054,560 decryptions)
     let r = "12345".chars();
 
-    for (slow, mid, fast) in iproduct!(r.clone(), r.clone(), r.clone()) {
-        // Skip combinations that contain duplicate rotors
-        if (slow == mid) || (slow == fast) || (mid == fast) {
-            continue;
-        }
-
-        let rotor = String::from_iter(vec![slow, mid, fast]);
-
-        for (a, b, c) in iproduct!(0..26, 0..26, 0..26) {
-            let key = String::from_iter(vec![a.to_char(), b.to_char(), c.to_char()]);
+    let (_, best_key, best_rotor) = iproduct!(r.clone(), r.clone(), r, 0..26, 0..26, 0..26)
+        .collect::<Vec<_>>()
+        .par_iter()
+        .filter(|&&(r1, r2, r3, _, _, _)| (r1 != r2) && (r1 != r3) && (r2 != r3))
+        .map(|&(r1, r2, r3, k1, k2, k3)| {
+            let rotor = String::from_iter(vec![r1, r2, r3]);
+            let key = String::from_iter(vec![k1.to_char(), k2.to_char(), k3.to_char()]);
 
             let mut enigma = Enigma::new(&rotor, &key, "AAA", 'B', "");
             let plaintext = enigma.encrypt(msg);
             let score = qgram_score(&plaintext);
+            (OrderedFloat(score), key, rotor)
+        }).max().unwrap();
 
-            if score > best_score {
-                best_score = score;
-                best_msg = plaintext;
-                best_key = key;
-                best_rotor = rotor.clone();
-            }
-        }
-    }
-
-    let key1 = best_key.chars().nth(0).unwrap();
+    let k1 = best_key.chars().nth(0).unwrap();
 
     // Key and ring settings (26^4 == 456,976 decryptions)
-    for (key2, key3, ring2, ring3) in iproduct!(0..26, 0..26, 0..26, 0..26) {
-        let key = String::from_iter(vec![key1, key2.to_char(), key3.to_char()]);
-        let ring = String::from_iter(vec!['A', ring2.to_char(), ring3.to_char()]);
+    let (_, best_msg, best_key, best_ring) = iproduct!(0..26, 0..26, 0..26, 0..26)
+        .collect::<Vec<_>>()
+        .par_iter()
+        .map(|&(k2, k3, r2, r3)| {
+            let key = String::from_iter(vec![k1, k2.to_char(), k3.to_char()]);
+            let ring = String::from_iter(vec!['A', r2.to_char(), r3.to_char()]);
 
-        let mut enigma = Enigma::new(&best_rotor, &key, &ring, 'B', "");
-        let plaintext = enigma.encrypt(msg);
-        let score = qgram_score(&plaintext);
-
-        if score > best_score {
-            best_score = score;
-            best_msg = plaintext;
-            best_key = key;
-            best_ring = ring;
-        }
-    }
+            let mut enigma = Enigma::new(&best_rotor, &key, &ring, 'B', "");
+            let plaintext = enigma.encrypt(msg);
+            let score = qgram_score(&plaintext);
+            (OrderedFloat(score), plaintext, key, ring)
+        }).max().unwrap();
 
     (best_msg, best_key, best_ring, best_rotor)
 }
