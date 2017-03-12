@@ -26,7 +26,7 @@ lazy_static! {
 
 
 /// Decrypts the given string by iterating through multiple possible Enigma
-/// configurations, returning the tuple `(plaintext, key, ring, rotor)`
+/// configurations, returning the tuple `(plaintext, rotor, key, ring)`
 /// corresponding to the most probable plaintext.
 pub fn decrypt(msg: &str) -> (String, String, String, String) {
     // Rotor and key settings (60*26^3 == 1,054,560 decryptions)
@@ -62,7 +62,7 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
             (OrderedFloat(score), plaintext, key, ring)
         }).max().unwrap();
 
-    (best_msg, best_key, best_ring, best_rotor)
+    (best_msg, best_rotor, best_key, best_ring)
 }
 
 

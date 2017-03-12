@@ -25,9 +25,9 @@ fn main() {
     let msg = matches.value_of("MESSAGE").unwrap();
 
     if matches.is_present("decrypt") {
-        let (plaintext, key, ring, rotors) = decrypt(msg);
+        let (plaintext, rotors, key, ring) = decrypt(msg);
         println!("{}", plaintext);
-        println!("(Key Setting: {}, Ring Setting: {}, Rotors: {})", key, ring, rotors);
+        println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
     }
 
     else if matches.is_present("randomize") {
@@ -56,7 +56,7 @@ fn main() {
 
         let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', "");
         println!("{}", enigma.encrypt(msg));
-        println!("(Key Setting: {}, Ring Setting: {}, Rotors: {})", &key, &ring, &rotors);
+        println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", &rotors, &key, &ring);
     }
 
     else {
