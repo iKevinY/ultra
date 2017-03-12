@@ -1,5 +1,3 @@
-use std::iter::FromIterator;
-
 use super::CharIndex;
 
 #[derive(Clone, Debug)]
@@ -10,7 +8,7 @@ pub struct Plugboard {
 impl Plugboard {
     pub fn new(pairs: &str) -> Plugboard {
         let alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let mut mapping = Vec::from_iter(alpha.chars());
+        let mut mapping: Vec<char> = alpha.chars().collect();
 
         for pair in pairs.split_whitespace() {
             let pair: Vec<char> = pair.chars().collect();

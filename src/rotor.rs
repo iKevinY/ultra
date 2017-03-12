@@ -1,5 +1,3 @@
-use std::iter::FromIterator;
-
 use super::{CharIndex, ToChar};
 use constants::{ROTORS, NOTCHES};
 
@@ -35,7 +33,7 @@ impl Rotor {
         Rotor {
             mapping: mapping,
             inverse: inverse,
-            notches: Vec::from_iter(notches.chars().map(|c| c.index())),
+            notches: notches.chars().map(|c| c.index()).collect(),
             offset: key.index(),
             key_setting: key.index(),
             ring_setting: ring.index(),

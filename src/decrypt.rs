@@ -36,7 +36,7 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
     let r = "12345".chars();
 
     for (slow, mid, fast) in iproduct!(r.clone(), r.clone(), r.clone()) {
-        // Skip rotor combinations that contain duplicates
+        // Skip combinations that contain duplicate rotors
         if (slow == mid) || (slow == fast) || (mid == fast) {
             continue;
         }
@@ -59,11 +59,11 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
         }
     }
 
-    let first_key = best_key.chars().nth(0).unwrap();
+    let key1 = best_key.chars().nth(0).unwrap();
 
     // Key and ring settings (26^4 == 456,976 decryptions)
     for (key2, key3, ring2, ring3) in iproduct!(0..26, 0..26, 0..26, 0..26) {
-        let key = String::from_iter(vec![first_key, key2.to_char(), key3.to_char()]);
+        let key = String::from_iter(vec![key1, key2.to_char(), key3.to_char()]);
         let ring = String::from_iter(vec!['A', ring2.to_char(), ring3.to_char()]);
 
         let mut enigma = Enigma::new(&best_rotor, &key, &ring, 'B', "");
