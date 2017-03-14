@@ -10,6 +10,6 @@ fn expected_ciphertext() {
 
 #[test]
 fn turnover_points() {
-	let mut enigma = Enigma::new("123", "AAA", "ADU", 'B', "");
-	assert_eq!(enigma.encrypt("THEQUICKBROWNFOX"), "ACGXKHKYCBVQZMJM");
+    let mut enigma = Enigma::new("123", "AAA", "ADU", 'B', "");
+    assert_eq!(enigma.encrypt("THEQUICKBROWNFOX"), "ACGXKHKYCBVQZMJM");
 }
