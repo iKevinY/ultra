@@ -3,8 +3,26 @@ extern crate clap;
 extern crate rand;
 extern crate ultra;
 
+use std::ascii::AsciiExt;
+
 use rand::Rng;
 use ultra::{Enigma, decrypt};
+
+
+trait CasedString {
+    fn with_case_of(&self, target: &str) -> String;
+}
+
+impl CasedString for String {
+    fn with_case_of(&self, target: &str) -> String {
+        self.chars().zip(target.chars()).map(|(s, t)| {
+            match t.is_lowercase() {
+                true => s.to_ascii_lowercase(),
+                false => s
+            }
+        }).collect()
+    }
+}
 
 
 fn main() {
@@ -26,7 +44,7 @@ fn main() {
 
     if matches.is_present("decrypt") {
         let (plaintext, rotors, key, ring) = decrypt(msg);
-        println!("{}", plaintext);
+        println!("{}", plaintext.with_case_of(msg));
         println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
     }
 
@@ -55,7 +73,7 @@ fn main() {
         }
 
         let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', "");
-        println!("{}", enigma.encrypt(msg));
+        println!("{}", enigma.encrypt(msg).with_case_of(msg));
         println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", &rotors, &key, &ring);
     }
 
@@ -66,6 +84,6 @@ fn main() {
         let plugboard = matches.value_of("PLUGBOARD").unwrap_or("");
 
         let mut enigma = Enigma::new(rotors, key, ring, 'B', plugboard);
-        println!("{}", enigma.encrypt(msg));
+        println!("{}", enigma.encrypt(msg).with_case_of(msg));
     }
 }
