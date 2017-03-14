@@ -71,7 +71,7 @@ impl Rotor {
     }
 
     /// Returns true if the rotor is currently in a notch position.
-    pub fn notch_position(&self) -> bool {
+    pub fn at_notch(&self) -> bool {
         self.notches.iter().any(|&n| n == self.offset)
     }
 

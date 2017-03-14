@@ -90,10 +90,10 @@ impl Enigma {
     /// `mid` and `slow` rotors if appropriate.
     fn advance(&mut self) {
         // Check for double-rotation situation
-        if self.mid.notch_position() {
+        if self.mid.at_notch() {
             self.mid.advance();
             self.slow.advance();
-        } else if self.fast.notch_position() {
+        } else if self.fast.at_notch() {
             self.mid.advance();
         }
 
