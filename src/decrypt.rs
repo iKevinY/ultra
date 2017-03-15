@@ -72,7 +72,7 @@ pub fn qgram_score(msg: &str) -> f64 {
         .collect();
 
     if char_indices.len() < 4 {
-        panic!("Input string must be longer than 4 characters.");
+        panic!("Message must contain more than 4 alphabetic characters.");
     }
 
     char_indices.windows(4)
