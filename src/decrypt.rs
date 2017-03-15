@@ -1,9 +1,7 @@
-use std::iter::FromIterator;
-
 use ordered_float::OrderedFloat;
 use rayon::prelude::*;
 
-use super::{CharIndex, ToChar};
+use super::CharIndex;
 use super::enigma::Enigma;
 
 lazy_static! {
@@ -30,31 +28,30 @@ lazy_static! {
 /// corresponding to the most probable plaintext.
 pub fn decrypt(msg: &str) -> (String, String, String, String) {
     // Rotor and key settings (60*26^3 == 1,054,560 decryptions)
-    let r = "12345".chars();
-
-    let (_, best_key, best_rotor) = iproduct!(r.clone(), r.clone(), r, 0..26, 0..26, 0..26)
-        .collect::<Vec<_>>()
+    let (_, k1, best_rotor) = iproduct!(
+            b'1'..b'6', b'1'..b'6', b'1'..b'6',
+            b'A'..b'[', b'A'..b'[', b'A'..b'['
+        ).collect::<Vec<_>>()
         .par_iter()
         .filter(|&&(r1, r2, r3, _, _, _)| (r1 != r2) && (r1 != r3) && (r2 != r3))
         .map(|&(r1, r2, r3, k1, k2, k3)| {
-            let rotor = String::from_iter(vec![r1, r2, r3]);
-            let key = String::from_iter(vec![k1.to_char(), k2.to_char(), k3.to_char()]);
+            let rotor = String::from_utf8(vec![r1, r2, r3]).unwrap();
+            let key = String::from_utf8(vec![k1, k2, k3]).unwrap();
 
             let mut enigma = Enigma::new(&rotor, &key, "AAA", 'B', "");
             let plaintext = enigma.encrypt(msg);
             let score = qgram_score(&plaintext);
-            (OrderedFloat(score), key, rotor)
+            (OrderedFloat(score), k1, rotor)
         }).max().unwrap();
 
-    let k1 = best_key.chars().nth(0).unwrap();
-
     // Key and ring settings (26^4 == 456,976 decryptions)
-    let (_, best_msg, best_key, best_ring) = iproduct!(0..26, 0..26, 0..26, 0..26)
-        .collect::<Vec<_>>()
+    let (_, best_msg, best_key, best_ring) = iproduct!(
+            b'A'..b'[', b'A'..b'[', b'A'..b'[', b'A'..b'['
+        ).collect::<Vec<_>>()
         .par_iter()
         .map(|&(k2, k3, r2, r3)| {
-            let key = String::from_iter(vec![k1, k2.to_char(), k3.to_char()]);
-            let ring = String::from_iter(vec!['A', r2.to_char(), r3.to_char()]);
+            let key = String::from_utf8(vec![k1, k2, k3]).unwrap();
+            let ring = String::from_utf8(vec![b'A', r2, r3]).unwrap();
 
             let mut enigma = Enigma::new(&best_rotor, &key, &ring, 'B', "");
             let plaintext = enigma.encrypt(msg);
