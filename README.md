@@ -1,11 +1,12 @@
 # ultra [![Build Status][Travis Badge]][Build Status] [![crates.io][crates.io Badge]][crates.io] [![docs.rs][docs.rs Badge]][docs.rs] [![License][License Badge]](LICENSE)
 
-Cryptanalysis of the Enigma in Rust.
+`ultra` is a Rust implementation of the [Enigma machine] that includes the
+ability to decrypt ciphertext.
 
 
 ## Installation
 
-`ultra` can be installed from crates.io using Cargo:
+`ultra` can be installed from [crates.io] using Cargo:
 
 ```
 $ cargo install ultra
@@ -14,22 +15,27 @@ $ cargo install ultra
 
 ## Usage
 
-Encrypt a message with rotors `1-4-2`, key setting `DOG`, and ring setting `CAT`:
+Encrypt a message with rotors `1-4-2`, key setting `D-O-G`, and ring setting `C-A-T`:
 
 ```bash
-$ ultra --rotor=142 --key=DOG --ring=CAT ${message}
+$ ultra --rotor=142 --key=DOG --ring=CAT "The quick brown fox jumps over the lazy dog."
+Ntz ntqlz jmwll art bbnow wzqk keq ievk lzo.
 ```
 
 Encrypt a message using random Enigma settings:
 
 ```bash
-$ ultra --randomize ${message}
+$ ultra --randomize "The quick brown fox jumps over the lazy dog."
+Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd.
+(Rotors: 314, Key Setting: NHO, Ring Setting: VTB)
 ```
 
-Attempt to decrypt a given piece of ciphertext:
+Decrypt the ciphertext generated in the first example:
 
 ```bash
-$ ultra --decrypt ${message}
+$ ultra --decrypt "Ntz ntqlz jmwll art bbnow wzqk keq ievk lzo."
+The quick brown fox jumps over the lazy dog.
+(Rotors: 142, Key Setting: BZG, Ring Setting: ALT)
 ```
 
 > **Note**: Decryption relies on quadgram frequencies to infer the original
@@ -56,5 +62,7 @@ This project's quadgram data and decryption algorithm is based on
 [docs.rs Badge]: https://docs.rs/ultra/badge.svg
 [docs.rs]: https://docs.rs/ultra
 [License Badge]: https://img.shields.io/crates/l/ultra.svg
+
+[Enigma machine]: https://en.wikipedia.org/wiki/Enigma_machine
 
 [James Lyons']: http://practicalcryptography.com/ciphers/mechanical-era/enigma/
