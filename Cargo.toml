@@ -22,6 +22,9 @@ doc = false
 [lib]
 path = "src/lib.rs"
 
+[profile.dev]
+opt-level = 2
+
 [profile.test]
 opt-level = 2
 
