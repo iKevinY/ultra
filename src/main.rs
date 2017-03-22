@@ -4,9 +4,17 @@ extern crate rand;
 extern crate ultra;
 
 use std::ascii::AsciiExt;
+use std::io::{Write, stderr};
 
 use rand::Rng;
 use ultra::{Enigma, decrypt};
+
+
+macro_rules! eprintln {
+    ($($tt:tt)*) => {
+        let _ = writeln!(&mut stderr(), $($tt)*);
+    }
+}
 
 
 trait CasedString {
@@ -45,7 +53,7 @@ fn main() {
     if matches.is_present("decrypt") {
         let (plaintext, rotors, key, ring) = decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
-        println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
+        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
     }
 
     else if matches.is_present("randomize") {
@@ -74,7 +82,7 @@ fn main() {
 
         let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', "");
         println!("{}", enigma.encrypt(msg).with_case_of(msg));
-        println!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", &rotors, &key, &ring);
+        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
     }
 
     else {
