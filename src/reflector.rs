@@ -10,9 +10,7 @@ pub struct Reflector {
 impl Reflector {
     /// Creates a new `Reflector` with a given 26-character mapping.
     pub fn new(mapping: &str) -> Reflector {
-        Reflector {
-            mapping: mapping.chars().collect(),
-        }
+        Reflector { mapping: mapping.chars().collect() }
     }
 
     pub fn from_enigma(reflector: char) -> Reflector {

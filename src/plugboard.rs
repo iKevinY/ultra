@@ -19,9 +19,7 @@ impl Plugboard {
             mapping[b.index()] = a;
         }
 
-        Plugboard {
-            mapping: mapping,
-        }
+        Plugboard { mapping: mapping }
     }
 
     pub fn map(&self, c: char) -> char {

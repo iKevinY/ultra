@@ -33,8 +33,7 @@ impl Enigma {
     /// println!("{}", enigma.encrypt("ENIGMA"));
     /// ```
     pub fn new(rotors: &str, keys: &str, rings: &str, reflector: char, plugboard: &str) -> Enigma {
-        let rotors: Vec<usize> = rotors
-            .chars()
+        let rotors: Vec<usize> = rotors.chars()
             .filter_map(|c| c.to_digit(10))
             .map(|n| n as usize)
             .collect();
