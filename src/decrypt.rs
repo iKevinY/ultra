@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rayon::prelude::*;
 
@@ -43,7 +42,7 @@ lazy_static! {
 /// configurations, returning the tuple `(plaintext, rotor, key, ring)`
 /// corresponding to the most probable plaintext.
 pub fn decrypt(msg: &str) -> (String, String, String, String) {
-    // Try all rotor/key permutations (60*26^3 == 1,054,560 decryptions).
+    // Try all rotor/key permutations (60*26^3 == 1,054,560 decryptions)
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
         .collect::<Vec<_>>()
         .into_par_iter()
@@ -53,21 +52,24 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
             OrderedFloat(qgram_score(&plaintext))
         }).unwrap();
 
-    // Use the best rotor/key settings found previously, and iterate through
-    // ring settings for the latter two rotors (the ring setting for the slow
-    // rotor doesn't matter, so fix it to 'A'), shifting the key setting to
-    // match the corresponding ring setting (26^2 == 676 decryptions).
-    let (k1, k2, k3) = key.chars().map(|c| c.index()).next_tuple().unwrap();
+    // Keep the best rotor configuration found previously, and use the same
+    // key setting for the first (slow) rotor. The ring setting for the first
+    // rotor doesn't matter, so fix it to 'A', and try all key/ring settings
+    // for the remaining two rotors (26^4 == 456,976 decryptions)
+    let key_offset = key.chars().nth(0).unwrap().index() * 676;
 
-    let (_, msg, key, ring) = iproduct!(0..26, 0..26).map(|(r2, r3)| {
-        let key = &ALPHAS[k1 * 676 + ((k2 + r2) % 26) * 26 + (k3 + r3) % 26];
-        let ring = &ALPHAS[r2 * 26 + r3];
+    let (_, msg, key, ring) = iproduct!(key_offset..(key_offset + 676), 0..676)
+        .collect::<Vec<_>>()
+        .par_iter()
+        .map(|&(key_index, ring_index)| {
+            let key = &ALPHAS[key_index];
+            let ring = &ALPHAS[ring_index];
 
-        let mut enigma = Enigma::new(rotor, key, ring, 'B', "");
-        let plaintext = enigma.encrypt(msg);
-        let score = qgram_score(&plaintext);
-        (OrderedFloat(score), plaintext, key, ring)
-    }).max().unwrap();
+            let mut enigma = Enigma::new(rotor, key, ring, 'B', "");
+            let plaintext = enigma.encrypt(msg);
+            let score = qgram_score(&plaintext);
+            (OrderedFloat(score), plaintext, key, ring)
+        }).max().unwrap();
 
     (msg, rotor.clone(), key.clone(), ring.clone())
 }
