@@ -30,18 +30,19 @@ Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd.
 (Rotors: 314, Key Setting: NHO, Ring Setting: VTB)
 ```
 
-Decrypt the ciphertext generated in the first example:
+Decrypt the ciphertext generated in the previous example:
 
 ```bash
-$ ultra --decrypt "Ntz ntqlz jmwll art bbnow wzqk keq ievk lzo."
+$ ultra --decrypt "Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd."
 The quick brown fox jumps over the lazy dog.
-(Rotors: 142, Key Setting: BZG, Ring Setting: ALT)
+(Rotors: 314, Key Setting: SZO, Ring Setting: ALB)
 ```
 
-> **Note**: Decryption relies on quadgram frequencies to infer the original
-Enigma machine settings; as a result, it is very likely that short messages
+Decryption relies on quadgram frequencies to infer the original Enigma
+machine settings, and as a result, it is quite likely that short messages
 will be decrypted incorrectly. Additionally, decryption will not work for
-messages that were encrypted with any plugboard plugs active.
+messages that were encrypted with any plugboard plugs active. See
+[this blog post] for a brief overview of the decryption algorithm.
 
 
 ## References
@@ -64,5 +65,5 @@ This project's quadgram data and decryption algorithm is based on
 [License Badge]: https://img.shields.io/crates/l/ultra.svg
 
 [Enigma machine]: https://en.wikipedia.org/wiki/Enigma_machine
-
+[this blog post]: http://kevinyap.ca/2017/04/breaking-the-enigma-code-with-rust/
 [James Lyons']: http://practicalcryptography.com/ciphers/mechanical-era/enigma/
