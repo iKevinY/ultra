@@ -29,9 +29,9 @@ opt-level = 2
 opt-level = 2
 
 [dependencies]
-clap = "2.21"
-itertools = "0.5"
+clap = "2.25"
+itertools = "0.6"
 lazy_static = "0.2"
-ordered-float = "0.4.0"
+ordered-float = "0.5"
 rand = "0.3"
-rayon = "0.6"
+rayon = "0.8"
