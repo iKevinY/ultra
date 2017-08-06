@@ -4,17 +4,9 @@ extern crate rand;
 extern crate ultra;
 
 use std::ascii::AsciiExt;
-use std::io::{Write, stderr};
 
 use rand::Rng;
 use ultra::{Enigma, decrypt};
-
-
-macro_rules! eprintln {
-    ($($tt:tt)*) => {
-        let _ = writeln!(&mut stderr(), $($tt)*);
-    }
-}
 
 
 trait CasedString {
