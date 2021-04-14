@@ -10,11 +10,12 @@ extern crate rayon;
 mod decrypt;
 mod constants;
 mod enigma;
+mod fitness;
 mod plugboard;
 mod reflector;
 mod rotor;
 
-pub use decrypt::{decrypt, qgram_score};
+pub use decrypt::{decrypt};
 pub use enigma::Enigma;
 
 
