@@ -93,10 +93,33 @@ pub fn qgram_score(msg: &str) -> f64 {
         .sum()
 }
 
+/// Strips all non-alphabetic characters from the given message string and
+/// returns the index of coincidence of the message.
+pub fn ioc_score(msg: &str) -> f64 {
+    let char_indices: Vec<usize> = msg.chars()
+        .filter(|&c| c.is_alphabetic())
+        .map(|c| c.index())
+        .collect();
+
+    let mut buckets = [0; 26];
+
+    for c in &char_indices {
+        buckets[*c] += 1;
+    }
+
+    let tot: isize = buckets
+        .iter()
+        .map(|n| n * (n - 1))
+        .sum();
+
+    let n = char_indices.len();
+    return tot as f64 / (n * (n - 1) / 26) as f64;
+}
+
 
 #[cfg(test)]
 mod tests {
-    use super::{QGRAMS, qgram_score};
+    use super::{QGRAMS, qgram_score, ioc_score};
 
     macro_rules! assert_approx_eq {
         ($a:expr, $b:expr) => {
@@ -120,5 +143,12 @@ mod tests {
     #[should_panic]
     fn invalid_qgram_check() {
         qgram_score("ABC");
+    }
+
+    #[test]
+    fn sensible_ioc_scores() {
+        assert_approx_eq!(ioc_score("THE INDEX OF COINCIDENCE PROVIDES A MEASURE OF HOW LIKELY IT IS TO DRAW TWO MATCHING LETTERS BY RANDOMLY SELECTING TWO LETTERS FROM A GIVEN TEXT"), 1.55925925);
+
+        assert_approx_eq!(ioc_score(&"ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(100)), 0.99038091);
     }
 }
