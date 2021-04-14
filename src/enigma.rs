@@ -1,5 +1,3 @@
-use std::ascii::AsciiExt;
-
 use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;

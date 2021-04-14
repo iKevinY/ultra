@@ -3,8 +3,6 @@ extern crate clap;
 extern crate rand;
 extern crate ultra;
 
-use std::ascii::AsciiExt;
-
 use rand::Rng;
 use ultra::{Enigma, decrypt};
 
