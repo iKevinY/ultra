@@ -61,6 +61,7 @@ fn main() {
             rotors.into_iter().collect()
         };
 
+        // Randomize key and ring settings for the rotors.
         let mut key = String::with_capacity(3);
         let mut ring = String::with_capacity(3);
         let alpha: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
@@ -70,9 +71,19 @@ fn main() {
             ring.push(*rng.choose(&alpha).unwrap());
         }
 
-        let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', "");
+        // Pick random plugs to fill plugboard with.
+        let mut plug_pool = alpha.clone();
+        rng.shuffle(&mut plug_pool);
+        let plugboard = plug_pool
+            .chunks(2)
+            .take(rng.gen_range(0, 10))  // maximum of 10 plugs
+            .map(|chrs| chrs.iter().collect::<String>())
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        let mut enigma = Enigma::new(&rotors, &key, &ring, 'B', &plugboard);
         println!("{}", enigma.encrypt(msg).with_case_of(msg));
-        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
+        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {}, Plugboard: {})", rotors, key, ring, plugboard);
     }
 
     else {
