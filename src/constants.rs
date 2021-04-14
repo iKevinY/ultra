@@ -21,3 +21,5 @@ pub const REFLECTORS: &'static [&'static str; 3] = &[
     "YRUHQSLDPXNGOKMIEBFZCWVJAT",
     "FVPJIAOYEDRZXWGCTKUQSBNMHL",
 ];
+
+pub const MAX_PLUGS: usize = 10;

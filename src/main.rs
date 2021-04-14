@@ -4,7 +4,7 @@ extern crate rand;
 extern crate ultra;
 
 use rand::Rng;
-use ultra::{Enigma, decrypt};
+use ultra::{Enigma, decrypt, plugboard_decrypt};
 
 
 trait CasedString {
@@ -44,6 +44,10 @@ fn main() {
         let (plaintext, rotors, key, ring) = decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
         eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
+
+        let (plaintext, rotors, key, ring, plugboard) = plugboard_decrypt(msg);
+        println!("{}", plaintext.with_case_of(msg));
+        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {}, Plugboard: {})", rotors, key, ring, plugboard);
     }
 
     else if matches.is_present("randomize") {
