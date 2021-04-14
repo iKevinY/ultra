@@ -25,6 +25,14 @@ impl Plugboard {
     pub fn map(&self, c: char) -> char {
         self.mapping[c.index()]
     }
+
+    // Returns a Vec of the characters that haven't been mapped.
+    pub fn unused_chars(&self) -> Vec<char> {
+        return self.mapping.iter().enumerate()
+            .filter(|(i, chr)| *i == chr.index())
+            .map(|(_, chr)| *chr)
+            .collect();
+    }
 }
 
 
@@ -53,5 +61,17 @@ mod tests {
         assert_eq!(plugboard.map('B'), 'A');
         assert_eq!(plugboard.map('C'), 'D');
         assert_eq!(plugboard.map('E'), 'E');
+    }
+
+    #[test]
+    fn unused_chars() {
+        let plugboard_1 = Plugboard::new("");
+        assert_eq!(plugboard_1.unused_chars().len(), 26);
+
+        let plugboard_2 = Plugboard::new("AB");
+        assert_eq!(plugboard_2.unused_chars().len(), 24);
+
+        let plugboard_3 = Plugboard::new("AB CD");
+        assert_eq!(plugboard_3.unused_chars().len(), 22);
     }
 }
