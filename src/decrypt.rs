@@ -27,11 +27,11 @@ lazy_static! {
 
 
 /// Decrypts the given string by iterating through multiple possible Enigma
-/// configurations, returning the tuple `(plaintext, rotor, key, ring)`
-/// corresponding to the most probable plaintext.
+/// configurations, returning the tuple `(plaintext, Enigma)` corresponding to
+/// the most probable plaintext.
 ///
 /// Original decryption algorithm, uses quadgram frequency throughout.
-pub fn decrypt(msg: &str) -> (String, String, String, String) {
+pub fn decrypt(msg: &str) -> (String, Enigma) {
     // Try all rotor/key permutations (60*26^3 == 1,054,560 decryptions)
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
         .collect::<Vec<_>>()
@@ -61,16 +61,16 @@ pub fn decrypt(msg: &str) -> (String, String, String, String) {
             (OrderedFloat(score), plaintext, key, ring)
         }).max().unwrap();
 
-    (msg, rotor.clone(), key.clone(), ring.clone())
+    (msg, Enigma::new(rotor, key, ring, 'B', ""))
 }
 
 /// Decrypts the given string by iterating through multiple possible Enigma
-/// configurations, returning `(plaintext, rotor, key, ring, plugboard)`
-/// corresponding to the most probable plaintext.
+/// configurations, returning `(plaintext, Enigma)` corresponding to the most
+/// probable plaintext.
 ///
 /// Uses index of coincidence to pick rotors, bigram frequency to pick the
 /// key and ring settings, and quadgram frequency for plugboard guesses.
-pub fn plugboard_decrypt(msg: &str) -> (String, String, String, String, String) {
+pub fn plugboard_decrypt(msg: &str) -> (String, Enigma) {
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
     .collect::<Vec<_>>()
     .into_par_iter()
@@ -123,5 +123,5 @@ pub fn plugboard_decrypt(msg: &str) -> (String, String, String, String, String) 
         }
     }
 
-    (best_plaintext, rotor.clone(), key.clone(), ring.clone(), best_plugboard.clone())
+    (best_plaintext, Enigma::new(rotor, key, ring, 'B', &best_plugboard))
 }

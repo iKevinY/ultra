@@ -39,19 +39,19 @@ fn main() {
     let msg = matches.value_of("MESSAGE").unwrap();
 
     if matches.is_present("decrypt") {
-        let (plaintext, rotors, key, ring) = decrypt(msg);
+        let (plaintext, enigma) = decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
-        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {})", rotors, key, ring);
+        eprintln!("Settings: {}", enigma);
 
-        let (plaintext, rotors, key, ring, plugboard) = plugboard_decrypt(msg);
+        let (plaintext, enigma) = plugboard_decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
-        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {}, Plugboard: {})", rotors, key, ring, plugboard);
+        eprintln!("Settings: {}", enigma);
     }
 
     else if matches.is_present("randomize") {
         let mut enigma = Enigma::random();
         println!("{}", enigma.encrypt(msg).with_case_of(msg));
-        eprintln!("{}", enigma);
+        eprintln!("Settings: {}", enigma);
     }
 
     else {
