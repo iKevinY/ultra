@@ -1,7 +1,9 @@
 use std::fmt;
 
 use itertools::Itertools;
-use rand::Rng;
+use rand::{Rng, SeedableRng};
+use rand::rngs::StdRng;
+use rand::seq::SliceRandom;
 
 use plugboard::Plugboard;
 use reflector::Reflector;
@@ -57,7 +59,8 @@ impl Enigma {
         }
     }
 
-    /// Creates a new random `Enigma` with random settings.
+    /// Creates a new random `Enigma` with random settings based on
+    /// thread-local RNG.
     ///
     /// ```
     /// use ultra::Enigma;
@@ -66,15 +69,30 @@ impl Enigma {
     /// println!("{}", enigma.encrypt("ENIGMA"));
     /// ```
     pub fn random() -> Enigma {
-        let mut rng = rand::thread_rng();
+        Enigma::random_from_rng(&mut rand::thread_rng())
+    }
 
+    /// Creates a new random `Enigma` from a given u64 seed.
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let mut enigma_1 = Enigma::random_from_u64_seed(42);
+    /// let mut enigma_2 = Enigma::random_from_u64_seed(42);
+    /// assert_eq!(enigma_1.encrypt("ENIGMA"), enigma_2.encrypt("ENIGMA"));
+    /// ```
+    pub fn random_from_u64_seed(seed: u64) -> Enigma {
+        Enigma::random_from_rng(&mut StdRng::seed_from_u64(seed))
+    }
+
+    pub fn random_from_rng<R: Rng>(rng: &mut R) -> Enigma {
         let rotors: String = {
             let mut rotor_pool: Vec<char> = "12345".chars().collect();
             let mut rotors = Vec::with_capacity(3);
 
             for _ in 0..3 {
                 let len = rotor_pool.len();
-                rotors.push(rotor_pool.remove(rng.gen_range(0, len)));
+                rotors.push(rotor_pool.remove(rng.gen_range(0..len)));
             }
 
             rotors.into_iter().collect()
@@ -86,16 +104,16 @@ impl Enigma {
         let alpha: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
 
         for _ in 0..3 {
-            key.push(*rng.choose(&alpha).unwrap());
-            ring.push(*rng.choose(&alpha).unwrap());
+            key.push(*alpha.choose(rng).unwrap());
+            ring.push(*alpha.choose(rng).unwrap());
         }
 
         // Pick random plugs to fill plugboard with.
         let mut plug_pool = alpha.clone();
-        rng.shuffle(&mut plug_pool);
+        plug_pool.shuffle(rng);
         let plugboard = plug_pool
             .chunks(2)
-            .take(rng.gen_range(0, 10))  // maximum of 10 plugs
+            .take(rng.gen_range(0..=10))  // maximum of 10 plugs
             .map(|chrs| chrs.iter().collect::<String>())
             .collect::<Vec<_>>()
             .join(" ");
@@ -200,6 +218,13 @@ mod tests {
         let plaintext = enigma.encrypt(&ciphertext);
 
         assert_eq!(plaintext, msg);
+    }
+
+    #[test]
+    fn identical_from_same_seed() {
+        let mut enigma_1 = Enigma::random_from_u64_seed(42);
+        let mut enigma_2 = Enigma::random_from_u64_seed(42);
+        assert_eq!(enigma_1.encrypt("ENIGMA"), enigma_2.encrypt("ENIGMA"));
     }
 
     #[test]

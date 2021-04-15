@@ -2,7 +2,7 @@
 extern crate clap;
 extern crate ultra;
 
-use ultra::{Enigma, decrypt, plugboard_decrypt};
+use ultra::{Enigma, decrypt};
 
 
 trait CasedString {
@@ -40,10 +40,6 @@ fn main() {
 
     if matches.is_present("decrypt") {
         let (plaintext, enigma) = decrypt(msg);
-        println!("{}", plaintext.with_case_of(msg));
-        eprintln!("Settings: {}", enigma);
-
-        let (plaintext, enigma) = plugboard_decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
         eprintln!("Settings: {}", enigma);
     }

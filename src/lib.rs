@@ -16,7 +16,7 @@ mod plugboard;
 mod reflector;
 mod rotor;
 
-pub use decrypt::{decrypt, plugboard_decrypt};
+pub use decrypt::decrypt;
 pub use enigma::Enigma;
 
 
