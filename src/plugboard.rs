@@ -1,3 +1,7 @@
+use std::fmt;
+
+use itertools::Itertools;
+
 use super::CharIndex;
 
 #[derive(Clone, Debug)]
@@ -24,6 +28,24 @@ impl Plugboard {
 
     pub fn map(&self, c: char) -> char {
         self.mapping[c.index()]
+    }
+}
+
+impl fmt::Display for Plugboard {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut plugs = Vec::new();
+
+        for (i, &c) in self.mapping.iter().enumerate() {
+            if i < (c as u8 - b'A') as usize {
+                plugs.push(format!("{}{}", ((i as u8) + b'A') as char, c));
+            }
+        }
+
+        if plugs.len() == 0 {
+            write!(f, "<none>")
+        } else {
+            write!(f, "{}", plugs.iter().join(" "))
+        }
     }
 }
 

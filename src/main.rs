@@ -51,6 +51,7 @@ fn main() {
     else if matches.is_present("randomize") {
         let mut enigma = Enigma::random();
         println!("{}", enigma.encrypt(msg).with_case_of(msg));
+        eprintln!("{}", enigma);
     }
 
     else {

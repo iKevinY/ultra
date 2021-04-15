@@ -1,3 +1,6 @@
+use std::fmt;
+
+use itertools::Itertools;
 use rand::Rng;
 
 use plugboard::Plugboard;
@@ -97,8 +100,6 @@ impl Enigma {
             .collect::<Vec<_>>()
             .join(" ");
 
-        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {}, Plugboard: {})", rotors, key, ring, plugboard);
-
         Enigma::new(&rotors, &key, &ring, 'B', &plugboard)
     }
 
@@ -153,6 +154,33 @@ impl Enigma {
         self.slow.reset();
         self.mid.reset();
         self.fast.reset();
+    }
+
+    /// Returns an iterator over the slow, middle, and fast rotors.
+    fn rotors(&self) -> std::vec::IntoIter<Rotor> {
+        vec![self.slow.clone(), self.mid.clone(), self.fast.clone()].into_iter()
+    }
+
+    /// Returns a string representing the `Enigma`'s key settings.
+    fn key_settings(&self) -> String {
+        self.rotors()
+            .map(|r| ((r.key_setting as u8) + b'A') as char)
+            .join("-")
+    }
+
+    /// Returns a string representing the `Enigma`'s ring settings.
+    fn ring_settings(&self) -> String {
+        self.rotors()
+            .map(|r| ((r.ring_setting as u8) + b'A') as char)
+            .join("-")
+    }
+}
+
+impl fmt::Display for Enigma {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Rotors: {} / Key: {} / Ring: {} / Plugs: {}",
+            self.rotors().map(|r| format!("{}", r)).join("-"),
+            self.key_settings(), self.ring_settings(), self.plugboard)
     }
 }
 

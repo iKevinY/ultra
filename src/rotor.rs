@@ -1,3 +1,5 @@
+use std::fmt;
+
 use super::{CharIndex, ToChar};
 use constants::{ROTORS, NOTCHES};
 
@@ -7,8 +9,8 @@ pub struct Rotor {
     inverse: Vec<char>,
     notches: Vec<usize>,
     pub offset: usize,
-    key_setting: usize,
-    ring_setting: usize,
+    pub key_setting: usize,
+    pub ring_setting: usize,
 }
 
 impl Rotor {
@@ -78,6 +80,17 @@ impl Rotor {
     /// Resets the rotor to its initial state.
     pub fn reset(&mut self) {
         self.offset = self.key_setting;
+    }
+}
+
+impl fmt::Display for Rotor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, &rotor) in ROTORS.iter().enumerate() {
+            if self.mapping.iter().collect::<String>() == rotor {
+                return write!(f, "{}", i + 1)
+            }
+        }
+        write!(f, "?")
     }
 }
 
