@@ -54,7 +54,7 @@ lazy_static! {
 /// For a given `n` and `ngram` vector, returns the sum of log-probabilities
 /// for each n-gram substring.
 fn ngram_score(n: usize, ngrams: &Vec<f64>, msg: &str) -> f64 {
-    let char_indices: Vec<usize> = msg.chars()
+    let char_indices: Vec<usize> = msg.to_uppercase().chars()
         .filter(|&c| c.is_alphabetic())
         .map(|c| c.index())
         .collect();
