@@ -27,28 +27,28 @@ Encrypt a message using random Enigma settings:
 ```bash
 $ ultra --randomize "The quick brown fox jumps over the lazy dog."
 Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd.
-(Rotors: 314, Key Setting: NHO, Ring Setting: VTB)
+Settings: Rotors: 5-2-3 / Key: A-A-G / Ring: N-W-Q / Plugs: CG EZ HW IJ MP TY
 ```
 
-Decrypt the ciphertext generated in the previous example:
+Attempt to decrypt a piece of ciphertext:
 
 ```bash
-$ ultra --decrypt "Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd."
-The quick brown fox jumps over the lazy dog.
-(Rotors: 314, Key Setting: SZO, Ring Setting: ALB)
+$ ultra --decrypt "$(cat ciphertext.txt)"
+...
 ```
 
-Decryption relies on quadgram frequencies to infer the original Enigma
-machine settings, and as a result, it is quite likely that short messages
-will be decrypted incorrectly. Additionally, decryption will not work for
-messages that were encrypted with any plugboard plugs active. See
-[this blog post] for a brief overview of the decryption algorithm.
+Decryption relies on a combination of [index of coincidence], bigram, and
+quadgram frequencies to infer the original Enigma machine settings, and as a
+result, it is quite likely that messages shorter than 500 characters will not
+come anywhere close to being decrypted correctly.
 
 
 ## References
 
-This project's quadgram data and decryption algorithm is based on
-[James Lyons'] articles about the Enigma machine.
+The original version of this project was based on [James Lyons'] articles about
+the Enigma machine (see [this blog post] for a brief overview). As of version
+0.6.0, the decryption algorithm was updated, inspired by [this Computerphile
+video].
 
 
 ## License
@@ -65,5 +65,7 @@ This project's quadgram data and decryption algorithm is based on
 [License Badge]: https://img.shields.io/crates/l/ultra.svg
 
 [Enigma machine]: https://en.wikipedia.org/wiki/Enigma_machine
+[index of coincidence]: https://en.wikipedia.org/wiki/Index_of_coincidence
 [this blog post]: http://kevinyap.ca/2017/04/breaking-the-enigma-code-with-rust/
 [James Lyons']: http://practicalcryptography.com/ciphers/mechanical-era/enigma/
+[this Computerphile video]: https://www.youtube.com/watch?v=RzWB5jL5RX0
