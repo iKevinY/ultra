@@ -5,6 +5,7 @@ extern crate lazy_static;
 #[macro_use]
 extern crate itertools;
 extern crate ordered_float;
+extern crate rand;
 extern crate rayon;
 
 mod decrypt;

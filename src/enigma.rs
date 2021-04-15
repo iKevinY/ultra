@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
@@ -50,6 +52,54 @@ impl Enigma {
             reflector: Reflector::from_enigma(reflector),
             plugboard: Plugboard::new(plugboard),
         }
+    }
+
+    /// Creates a new random `Enigma` with random settings.
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let mut enigma = Enigma::random();
+    /// println!("{}", enigma.encrypt("ENIGMA"));
+    /// ```
+    pub fn random() -> Enigma {
+        let mut rng = rand::thread_rng();
+
+        let rotors: String = {
+            let mut rotor_pool: Vec<char> = "12345".chars().collect();
+            let mut rotors = Vec::with_capacity(3);
+
+            for _ in 0..3 {
+                let len = rotor_pool.len();
+                rotors.push(rotor_pool.remove(rng.gen_range(0, len)));
+            }
+
+            rotors.into_iter().collect()
+        };
+
+        // Randomize key and ring settings for the rotors.
+        let mut key = String::with_capacity(3);
+        let mut ring = String::with_capacity(3);
+        let alpha: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
+
+        for _ in 0..3 {
+            key.push(*rng.choose(&alpha).unwrap());
+            ring.push(*rng.choose(&alpha).unwrap());
+        }
+
+        // Pick random plugs to fill plugboard with.
+        let mut plug_pool = alpha.clone();
+        rng.shuffle(&mut plug_pool);
+        let plugboard = plug_pool
+            .chunks(2)
+            .take(rng.gen_range(0, 10))  // maximum of 10 plugs
+            .map(|chrs| chrs.iter().collect::<String>())
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        eprintln!("(Rotors: {}, Key Setting: {}, Ring Setting: {}, Plugboard: {})", rotors, key, ring, plugboard);
+
+        Enigma::new(&rotors, &key, &ring, 'B', &plugboard)
     }
 
 
