@@ -41,13 +41,13 @@ fn main() {
     if matches.is_present("decrypt") {
         let (plaintext, enigma) = decrypt(msg);
         println!("{}", plaintext.with_case_of(msg));
-        eprintln!("Settings: {}", enigma);
+        eprintln!("> {}", enigma);
     }
 
     else if matches.is_present("randomize") {
         let mut enigma = Enigma::random();
         println!("{}", enigma.encrypt(msg).with_case_of(msg));
-        eprintln!("Settings: {}", enigma);
+        eprintln!("> {}", enigma);
     }
 
     else {

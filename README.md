@@ -27,7 +27,7 @@ Encrypt a message using random Enigma settings:
 ```bash
 $ ultra --randomize "The quick brown fox jumps over the lazy dog."
 Kxj mcwzf oqgmz pwr vnfqq iwhv wcr qqgt lgd.
-Settings: Rotors: 5-2-3 / Key: A-A-G / Ring: N-W-Q / Plugs: CG EZ HW IJ MP TY
+> Rotors: 5-2-3 / Key: A-A-G / Ring: N-W-Q / Plugs: CG EZ HW IJ MP TY
 ```
 
 Attempt to decrypt a piece of ciphertext:
