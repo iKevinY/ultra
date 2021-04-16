@@ -24,7 +24,6 @@ lazy_static! {
     };
 }
 
-type ScoreFn = fn(&str) -> f64;
 
 /// Decrypts the given string by iterating through multiple possible Enigma
 /// configurations, returning `(plaintext, Enigma)` corresponding to the most
@@ -39,9 +38,14 @@ pub fn decrypt(msg: &str) -> (String, Enigma) {
     (enigma.encrypt(msg), enigma)
 }
 
+
+type ScoreFn = fn(&str) -> f64;
+
 /// Given a piece of ciphertext and a fitness function, tries all valid rotor
 /// and key combinations, and returns the rotor settings and first key that
 /// best decrypt the ciphertext.
+///
+/// This method checks 60 * 26^3 == 1,054,560 settings in parallel.
 fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> (String, char) {
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
         .collect::<Vec<_>>()
@@ -54,9 +58,11 @@ fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> (String, char) {
     (rotor.clone(), key.chars().nth(0).unwrap())
 }
 
-/// Given the a set of rotors and the first key setting, tries all 26^4 ==
-/// 456,976 key and ring settings for the mid and fast rotors, and returns
-/// the key and ring settings corresponding to the best decryption.
+/// Given the a set of rotors and the first key setting, tries all key and
+/// ring settings for the mid and fast rotors, and returns the key and ring
+/// settings corresponding to the best decryption.
+///
+/// This method checks 26^4 == 456,976 settings in parallel.
 fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, rotor: String, first_key: char)
     -> (String, String) {
     // Compute the key offset based on the first key setting, so that we only
@@ -82,6 +88,8 @@ fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, rotor: String, first_key: ch
 /// Given rotor, key, and ring settings, repeatedly adds plugs until adding
 /// a plug does not increase the overall fitness of the decryption. Returns
 /// the resulting `Enigma`.
+///
+/// At most, this is MAX_PLUGS * 26^2 == 6,760 tests.
 fn guess_plugboard(msg: &str, score_fn: ScoreFn, rotor: String, key: String,
         ring: String) -> Enigma {
     let mut plug_pool: Vec<char> = ('A'..='Z').collect();
