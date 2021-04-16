@@ -17,7 +17,7 @@ macro_rules! preprocess {
 #[test]
 fn two_cities_decryption() {
     let two_cities = preprocess!(TWO_CITIES);
-    let mut enigma = Enigma::random_from_u64_seed(4);
+    let mut enigma = Enigma::random_from_u64_seed(0);
     let ciphertext = enigma.encrypt(&two_cities);
     let (plaintext, _) = decrypt(&ciphertext);
     assert_eq!(plaintext, two_cities);

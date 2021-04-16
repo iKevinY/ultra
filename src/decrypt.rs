@@ -1,3 +1,5 @@
+use std::iter;
+
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use rayon::prelude::*;
@@ -29,11 +31,19 @@ lazy_static! {
 /// configurations, returning `(plaintext, Enigma)` corresponding to the most
 /// probable decryption.
 ///
+/// The decryption algorithm works in three steps:
+///
+/// 1. Guesses the rotors and first key setting.
+/// 2. Guesses the remaining key settings and ring settings.
+/// 3. Incrementally adds the best plug until no improvement is made.
+///
 /// Assumes `msg` contains only uppercase ASCII characters.
 pub fn decrypt(msg: &str) -> (String, Enigma) {
-    let (rotor, first_key) = guess_rotor_and_first_key(msg, IoC::score);
-    let (key, ring) = guess_key_and_ring(msg, Bigram::score, rotor.clone(), first_key);
-    let mut enigma = guess_plugboard(msg, Quadgram::score, rotor, key, ring);
+    let mut enigma;
+
+    enigma = guess_rotor_and_first_key(msg, IoC::score);
+    enigma = guess_key_and_ring(msg, Bigram::score, enigma);
+    enigma = guess_plugboard(msg, Quadgram::score, enigma);
 
     (enigma.encrypt(msg), enigma)
 }
@@ -42,11 +52,12 @@ pub fn decrypt(msg: &str) -> (String, Enigma) {
 type ScoreFn = fn(&str) -> f64;
 
 /// Given a piece of ciphertext and a fitness function, tries all valid rotor
-/// and key combinations, and returns the rotor settings and first key that
-/// best decrypt the ciphertext.
+/// and key combinations, and returns an `Enigma` with rotor settings and
+/// first key setting that best decrypt the ciphertext. Note that the other
+/// key settings and ring settings will be meaningless at this point.
 ///
 /// This method checks 60 * 26^3 == 1,054,560 settings in parallel.
-fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> (String, char) {
+fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> Enigma {
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
         .collect::<Vec<_>>()
         .into_par_iter()
@@ -55,68 +66,82 @@ fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> (String, char) {
             OrderedFloat(score_fn(&enigma.encrypt(msg)))
         }).unwrap();
 
-    (rotor.clone(), key.chars().nth(0).unwrap())
+    Enigma::new(rotor, key, "AAA", 'B', "")
 }
 
-/// Given the a set of rotors and the first key setting, tries all key and
-/// ring settings for the mid and fast rotors, and returns the key and ring
-/// settings corresponding to the best decryption.
+/// Given a piece of ciphertext, fitness function, and an `Enigma` instance
+/// with the correct rotors and first key setting, tries all key and ring
+/// settings for the mid and fast rotors, and returns an `Enigma` with the
+/// best rotors, key, and ring settings assigned.
 ///
 /// This method checks 26^4 == 456,976 settings in parallel.
-fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, rotor: String, first_key: char)
-    -> (String, String) {
+fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
+    let rotor = enigma.rotor_list();
+    let first_key = enigma.key_settings().chars().nth(0).unwrap();
+
     // Compute the key offset based on the first key setting, so that we only
     // iterate over the next 676 key settings (this implicitly fixes the slow
     // rotor's key setting at 'A', which is intentional because this setting
     // does not affect the overall decryption).
     let key_offset = first_key.index() * 676;
 
-    let (_, key, ring) = iproduct!(key_offset..(key_offset + 676), 0..676)
+    let (key, ring) = iproduct!(key_offset..(key_offset + 676), 0..676)
         .collect::<Vec<_>>()
-        .par_iter()
-        .map(|&(key_index, ring_index)| {
-            let key = &ALPHAS[key_index];
-            let ring = &ALPHAS[ring_index];
-
+        .into_par_iter()
+        .map(|(key_idx, ring_idx)| (&ALPHAS[key_idx], &ALPHAS[ring_idx]))
+        .max_by_key(|&(key, ring)| {
             let mut enigma = Enigma::new(&rotor, key, ring, 'B', "");
-            (OrderedFloat(score_fn(&enigma.encrypt(msg))), key, ring)
-        }).max().unwrap();
+            OrderedFloat(score_fn(&enigma.encrypt(msg)))
+        }).unwrap();
 
-    (key.clone(), ring.clone())
+    Enigma::new(&rotor, key, ring, 'B', "")
 }
 
-/// Given rotor, key, and ring settings, repeatedly adds plugs until adding
-/// a plug does not increase the overall fitness of the decryption. Returns
-/// the resulting `Enigma`.
+/// Given a piece of ciphertext, fitness function, and an `Enigma` instance
+/// with the correct rotors, key, and ring settings, attempts to add plugs
+/// to the plugboard until adding one  does not increase the overall fitness
+/// of the decryption (or the number of plugs equals `MAX_PLUGS`). Returns the
+/// resulting `Enigma`.
 ///
 /// At most, this is MAX_PLUGS * 26^2 == 6,760 tests.
-fn guess_plugboard(msg: &str, score_fn: ScoreFn, rotor: String, key: String,
-        ring: String) -> Enigma {
-    let mut plug_pool: Vec<char> = ('A'..='Z').collect();
+fn guess_plugboard(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
+    let rotor = enigma.rotor_list();
+    let key = enigma.key_settings();
+    let ring = enigma.ring_settings();
 
-    let mut best_plugboard = "".to_string();
+    let mut curr_plugboard = Vec::new();
+    let mut plug_pool: Vec<char> = ('A'..='Z').collect();
     let mut best_score = score_fn(&msg);
 
     for _ in 0..MAX_PLUGS {
         let pool = plug_pool.clone();
-        let combos = pool.iter().combinations(2).collect::<Vec<_>>();
-        let (score, plugs, plugboard) = combos.par_iter()
-            .map(|plugs| {
-                let plugboard = format!("{} {}{}", best_plugboard, plugs[0], plugs[1]);
-                let mut enigma = Enigma::new(&rotor, &key, &ring, 'B', &plugboard.trim());
-                (OrderedFloat(score_fn(&enigma.encrypt(&msg))), plugs, plugboard)
+        let combos: Vec<String> = pool
+            .into_iter()
+            .combinations(2)
+            .map(|p| p.iter().collect())
+            .collect();
+
+        let (score, plug) = combos.par_iter()
+            .map(|plug| {
+                let plugboard = curr_plugboard
+                    .iter()
+                    .chain(iter::once(plug))
+                    .join(" ");
+
+                let mut enigma = Enigma::new(&rotor, &key, &ring, 'B', &plugboard);
+                (OrderedFloat(score_fn(&enigma.encrypt(&msg))), plug)
             }).max().unwrap();
 
         if *score > best_score {
             best_score = *score;
-            best_plugboard = plugboard.trim().to_string();
-            plug_pool.retain(|&c| c != *plugs[0] && c != *plugs[1]);
+            curr_plugboard.push(plug.to_string());
+            plug_pool.retain(|&c| !plug.chars().any(|p| p == c));
         } else {
             break;
         }
     }
 
-    Enigma::new(&rotor, &key, &ring, 'B', &best_plugboard)
+    Enigma::new(&rotor, &key, &ring, 'B', &curr_plugboard.iter().join(" "))
 }
 
 #[cfg(test)]

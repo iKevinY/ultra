@@ -5,6 +5,7 @@ use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 
+use constants::MAX_PLUGS;
 use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
@@ -85,37 +86,29 @@ impl Enigma {
         Enigma::random_from_rng(&mut StdRng::seed_from_u64(seed))
     }
 
-    pub fn random_from_rng<R: Rng>(rng: &mut R) -> Enigma {
+    fn random_from_rng<R: Rng>(rng: &mut R) -> Enigma {
         let rotors: String = {
             let mut rotor_pool: Vec<char> = "12345".chars().collect();
-            let mut rotors = Vec::with_capacity(3);
-
-            for _ in 0..3 {
-                let len = rotor_pool.len();
-                rotors.push(rotor_pool.remove(rng.gen_range(0..len)));
-            }
-
-            rotors.into_iter().collect()
+            rotor_pool.shuffle(rng);
+            rotor_pool[..3].iter().collect()
         };
 
         // Randomize key and ring settings for the rotors.
-        let mut key = String::with_capacity(3);
-        let mut ring = String::with_capacity(3);
-        let alpha: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect();
+        let mut alpha: Vec<char> = ('A'..='Z').collect();
 
-        for _ in 0..3 {
-            key.push(*alpha.choose(rng).unwrap());
-            ring.push(*alpha.choose(rng).unwrap());
-        }
+        alpha.shuffle(rng);
+        let key: String = alpha[..3].iter().collect();
+
+        alpha.shuffle(rng);
+        let ring: String = alpha[..3].iter().collect();
 
         // Pick random plugs to fill plugboard with.
         let mut plug_pool = alpha.clone();
         plug_pool.shuffle(rng);
         let plugboard = plug_pool
             .chunks(2)
-            .take(rng.gen_range(0..=10))  // maximum of 10 plugs
+            .take(rng.gen_range(0..=MAX_PLUGS))
             .map(|chrs| chrs.iter().collect::<String>())
-            .collect::<Vec<_>>()
             .join(" ");
 
         Enigma::new(&rotors, &key, &ring, 'B', &plugboard)
@@ -174,31 +167,39 @@ impl Enigma {
         self.fast.reset();
     }
 
-    /// Returns an iterator over the slow, middle, and fast rotors.
-    fn rotors(&self) -> std::vec::IntoIter<Rotor> {
-        vec![self.slow.clone(), self.mid.clone(), self.fast.clone()].into_iter()
+
+    /// Returns a string representing the `Enigma`'s rotor list.
+    pub fn rotor_list(&self) -> String {
+        self.rotors().map(|r| r.to_string()).collect()
     }
 
     /// Returns a string representing the `Enigma`'s key settings.
-    fn key_settings(&self) -> String {
+    pub fn key_settings(&self) -> String {
         self.rotors()
             .map(|r| ((r.key_setting as u8) + b'A') as char)
-            .join("-")
+            .collect()
     }
 
     /// Returns a string representing the `Enigma`'s ring settings.
-    fn ring_settings(&self) -> String {
+    pub fn ring_settings(&self) -> String {
         self.rotors()
             .map(|r| ((r.ring_setting as u8) + b'A') as char)
-            .join("-")
+            .collect()
+    }
+
+    /// Returns an iterator over the slow, middle, and fast rotors.
+    fn rotors(&self) -> std::vec::IntoIter<Rotor> {
+        vec![self.slow.clone(), self.mid.clone(), self.fast.clone()].into_iter()
     }
 }
 
 impl fmt::Display for Enigma {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Rotors: {} / Key: {} / Ring: {} / Plugs: {}",
-            self.rotors().map(|r| format!("{}", r)).join("-"),
-            self.key_settings(), self.ring_settings(), self.plugboard)
+            self.rotor_list().chars().join("-"),
+            self.key_settings().chars().join("-"),
+            self.ring_settings().chars().join("-"),
+            self.plugboard)
     }
 }
 
@@ -209,15 +210,17 @@ mod tests {
 
     #[test]
     fn symmetrical_behaviour() {
-        let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
+        let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG".repeat(10);
 
-        let mut enigma = Enigma::new("123", "AAA", "AAA", 'B', "AB YZ");
-        let ciphertext = enigma.encrypt(msg);
+        for _ in 0..10 {
+            let mut enigma = Enigma::random();
+            let ciphertext = enigma.encrypt(&msg);
 
-        enigma.reset();
-        let plaintext = enigma.encrypt(&ciphertext);
+            enigma.reset();
+            let plaintext = enigma.encrypt(&ciphertext);
 
-        assert_eq!(plaintext, msg);
+            assert_eq!(plaintext, msg);
+        }
     }
 
     #[test]
