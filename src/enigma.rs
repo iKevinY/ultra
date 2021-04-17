@@ -10,6 +10,7 @@ use plugboard::Plugboard;
 use reflector::Reflector;
 use rotor::Rotor;
 
+/// Represents an Enigma machine with rotor, key, and ring settings.
 #[derive(Clone, Debug)]
 pub struct Enigma {
     slow: Rotor,
