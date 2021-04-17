@@ -11,8 +11,7 @@ pub struct Plugboard {
 
 impl Plugboard {
     pub fn new(pairs: &str) -> Plugboard {
-        let alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let mut mapping: Vec<char> = alpha.chars().collect();
+        let mut mapping: Vec<char> = ('A'..='Z').collect();
 
         for pair in pairs.split_whitespace() {
             let pair: Vec<char> = pair.chars().collect();
@@ -33,13 +32,10 @@ impl Plugboard {
 
 impl fmt::Display for Plugboard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut plugs = Vec::new();
-
-        for (i, &c) in self.mapping.iter().enumerate() {
-            if i < (c as u8 - b'A') as usize {
-                plugs.push(format!("{}{}", ((i as u8) + b'A') as char, c));
-            }
-        }
+        let plugs: Vec<String> = self.mapping.iter().zip('A'..='Z')
+            .filter(|(a, b)| a < &b)
+            .map(|(a, b)| format!("{}{}", a, b))
+            .collect();
 
         if plugs.len() == 0 {
             write!(f, "<none>")

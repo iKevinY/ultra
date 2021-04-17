@@ -260,7 +260,7 @@ impl Enigma {
     }
 
     /// Returns an iterator over the slow, middle, and fast rotors.
-    fn rotors(&self) -> std::vec::IntoIter<Rotor> {
+    fn rotors(&self) -> impl Iterator<Item=Rotor> {
         vec![self.slow.clone(), self.mid.clone(), self.fast.clone()].into_iter()
     }
 }

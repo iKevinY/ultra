@@ -26,6 +26,7 @@ trait CharIndex {
 
 impl CharIndex for char {
     fn index(&self) -> usize {
+        debug_assert!(self.is_ascii_uppercase());
         *self as usize - 65
     }
 }

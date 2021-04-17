@@ -85,10 +85,12 @@ fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
     // does not affect the overall decryption).
     let key_offset = first_key.index() * 676;
 
-    let (key, ring) = iproduct!(key_offset..(key_offset + 676), 0..676)
+    let keys = &ALPHAS[key_offset..(key_offset + 676)];
+    let rings = &ALPHAS[0..676];
+
+    let (key, ring) = iproduct!(keys, rings)
         .collect::<Vec<_>>()
         .into_par_iter()
-        .map(|(key_idx, ring_idx)| (&ALPHAS[key_idx], &ALPHAS[ring_idx]))
         .max_by_key(|&(key, ring)| {
             let mut enigma = Enigma::new(&rotor, key, ring, 'B', "");
             OrderedFloat(score_fn(&enigma.encrypt(msg)))
@@ -99,7 +101,7 @@ fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
 
 /// Given a piece of ciphertext, fitness function, and an `Enigma` instance
 /// with the correct rotors, key, and ring settings, attempts to add plugs
-/// to the plugboard until adding one  does not increase the overall fitness
+/// to the plugboard until adding one does not increase the overall fitness
 /// of the decryption (or the number of plugs equals `MAX_PLUGS`). Returns the
 /// resulting `Enigma`.
 ///
@@ -114,14 +116,13 @@ fn guess_plugboard(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
     let mut best_score = score_fn(&msg);
 
     for _ in 0..MAX_PLUGS {
-        let pool = plug_pool.clone();
-        let combos: Vec<String> = pool
-            .into_iter()
+        let plugs: Vec<String> = plug_pool
+            .iter()
             .combinations(2)
-            .map(|p| p.iter().collect())
+            .map(|p| p.into_iter().collect())
             .collect();
 
-        let (score, plug) = combos.par_iter()
+        let (score, plug) = plugs.par_iter()
             .map(|plug| {
                 let plugboard = curr_plugboard
                     .iter()

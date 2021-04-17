@@ -29,7 +29,7 @@ impl Rotor {
         let mut inverse = vec!['A'; 26];
 
         for (i, &c) in mapping.iter().enumerate() {
-            inverse[c.index() % 26] = i.to_char();
+            inverse[c.index()] = i.to_char();
         }
 
         Rotor {
