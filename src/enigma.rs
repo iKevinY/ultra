@@ -37,7 +37,6 @@ impl Enigma {
     /// use ultra::Enigma;
     ///
     /// let mut enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
-    /// println!("{}", enigma.encrypt("ENIGMA"));
     /// ```
     pub fn new(rotors: &str, keys: &str, rings: &str, reflector: char, plugboard: &str) -> Enigma {
         let rotors: Vec<usize> = rotors.chars()
@@ -64,17 +63,22 @@ impl Enigma {
     /// Creates a new random `Enigma` with random settings based on
     /// thread-local RNG.
     ///
+    /// # Examples
+    ///
     /// ```
     /// use ultra::Enigma;
     ///
-    /// let mut enigma = Enigma::random();
-    /// println!("{}", enigma.encrypt("ENIGMA"));
+    /// let mut enigma_1 = Enigma::random();
+    /// let mut enigma_2 = Enigma::random();
+    /// assert!(enigma_1.encrypt("ENIGMA") != enigma_2.encrypt("ENIGMA"));
     /// ```
     pub fn random() -> Enigma {
         Enigma::random_from_rng(&mut rand::thread_rng())
     }
 
     /// Creates a new random `Enigma` from a given u64 seed.
+    ///
+    /// # Examples
     ///
     /// ```
     /// use ultra::Enigma;
@@ -118,6 +122,15 @@ impl Enigma {
 
     /// Encrypts an entire message, advancing the rotors of the machine
     /// after each alphabetic character is encrypted.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let mut enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
+    /// assert_eq!(enigma.encrypt("ENIGMA"), "HKAJWW");
+    /// ```
     pub fn encrypt(&mut self, msg: &str) -> String {
         msg.chars().map(|c| self.encrypt_char(c)).collect()
     }
@@ -162,6 +175,23 @@ impl Enigma {
     }
 
     /// Resets the `Enigma` to its initial state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let msg = "THIS IS A TEST";
+    ///
+    /// let mut enigma = Enigma::random();
+    /// let ciphertext_1 = enigma.encrypt(msg);
+    /// let ciphertext_2 = enigma.encrypt(msg);
+    ///
+    /// enigma.reset();
+    ///
+    /// assert_eq!(ciphertext_1, enigma.encrypt(msg));
+    /// assert!(ciphertext_1 != ciphertext_2);
+    /// ```
     pub fn reset(&mut self) {
         self.slow.reset();
         self.mid.reset();
@@ -170,11 +200,29 @@ impl Enigma {
 
 
     /// Returns a string representing the `Enigma`'s rotor list.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
+    /// assert_eq!(enigma.rotor_list(), "123");
+    /// ```
     pub fn rotor_list(&self) -> String {
         self.rotors().map(|r| r.to_string()).collect()
     }
 
     /// Returns a string representing the `Enigma`'s key settings.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
+    /// assert_eq!(enigma.key_settings(), "ABC");
+    /// ```
     pub fn key_settings(&self) -> String {
         self.rotors()
             .map(|r| ((r.key_setting as u8) + b'A') as char)
@@ -182,6 +230,15 @@ impl Enigma {
     }
 
     /// Returns a string representing the `Enigma`'s ring settings.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
+    /// assert_eq!(enigma.ring_settings(), "DEF");
+    /// ```
     pub fn ring_settings(&self) -> String {
         self.rotors()
             .map(|r| ((r.ring_setting as u8) + b'A') as char)
