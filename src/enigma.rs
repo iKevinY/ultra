@@ -124,7 +124,7 @@ impl Enigma {
 
     /// Advances the rotors then returns the substitution of
     /// a character, if the input character was alphabetic.
-    pub fn encrypt_char(&mut self, c: char) -> char {
+    fn encrypt_char(&mut self, c: char) -> char {
         if !c.is_ascii() || !c.is_alphabetic() {
             return c;
         }
