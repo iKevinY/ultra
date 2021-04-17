@@ -41,15 +41,13 @@ lazy_static! {
 pub fn decrypt(msg: &str) -> (String, Enigma) {
     let mut enigma;
 
-    enigma = guess_rotor_and_first_key(msg, IoC::score);
-    enigma = guess_key_and_ring(msg, Bigram::score, enigma);
-    enigma = guess_plugboard(msg, Quadgram::score, enigma);
+    enigma = guess_rotor_and_first_key::<IoC>(msg);
+    enigma = guess_key_and_ring::<Bigram>(msg, enigma);
+    enigma = guess_plugboard::<Quadgram>(msg, enigma);
 
     (enigma.encrypt(msg), enigma)
 }
 
-
-type ScoreFn = fn(&str) -> f64;
 
 /// Given a piece of ciphertext and a fitness function, tries all valid rotor
 /// and key combinations, and returns an `Enigma` with rotor settings and
@@ -57,13 +55,13 @@ type ScoreFn = fn(&str) -> f64;
 /// key settings and ring settings will be meaningless at this point.
 ///
 /// This method checks 60 * 26^3 == 1,054,560 settings in parallel.
-fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> Enigma {
+fn guess_rotor_and_first_key<F: FitnessFn>(msg: &str) -> Enigma {
     let (rotor, key) = iproduct!(ROTORS.iter(), ALPHAS.iter())
         .collect::<Vec<_>>()
         .into_par_iter()
         .max_by_key(|&(rotor, key)| {
             let mut enigma = Enigma::new(rotor, key, "AAA", 'B', "");
-            OrderedFloat(score_fn(&enigma.encrypt(msg)))
+            OrderedFloat(F::score(&enigma.encrypt(msg)))
         }).unwrap();
 
     Enigma::new(rotor, key, "AAA", 'B', "")
@@ -75,7 +73,7 @@ fn guess_rotor_and_first_key(msg: &str, score_fn: ScoreFn) -> Enigma {
 /// best rotors, key, and ring settings assigned.
 ///
 /// This method checks 26^4 == 456,976 settings in parallel.
-fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
+fn guess_key_and_ring<F: FitnessFn>(msg: &str, enigma: Enigma) -> Enigma {
     let rotor = enigma.rotor_list();
     let first_key = enigma.key_settings().chars().nth(0).unwrap();
 
@@ -93,7 +91,7 @@ fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
         .into_par_iter()
         .max_by_key(|&(key, ring)| {
             let mut enigma = Enigma::new(&rotor, key, ring, 'B', "");
-            OrderedFloat(score_fn(&enigma.encrypt(msg)))
+            OrderedFloat(F::score(&enigma.encrypt(msg)))
         }).unwrap();
 
     Enigma::new(&rotor, key, ring, 'B', "")
@@ -106,14 +104,14 @@ fn guess_key_and_ring(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
 /// resulting `Enigma`.
 ///
 /// At most, this is MAX_PLUGS * 26^2 == 6,760 tests.
-fn guess_plugboard(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
+fn guess_plugboard<F: FitnessFn>(msg: &str, enigma: Enigma) -> Enigma {
     let rotor = enigma.rotor_list();
     let key = enigma.key_settings();
     let ring = enigma.ring_settings();
 
     let mut curr_plugboard = Vec::new();
     let mut plug_pool: Vec<char> = ('A'..='Z').collect();
-    let mut best_score = score_fn(&msg);
+    let mut best_score = F::score(&msg);
 
     for _ in 0..MAX_PLUGS {
         let plugs: Vec<String> = plug_pool
@@ -130,7 +128,7 @@ fn guess_plugboard(msg: &str, score_fn: ScoreFn, enigma: Enigma) -> Enigma {
                     .join(" ");
 
                 let mut enigma = Enigma::new(&rotor, &key, &ring, 'B', &plugboard);
-                (OrderedFloat(score_fn(&enigma.encrypt(&msg))), plug)
+                (OrderedFloat(F::score(&enigma.encrypt(&msg))), plug)
             }).max().unwrap();
 
         if *score > best_score {
