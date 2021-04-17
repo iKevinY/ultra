@@ -1,13 +1,23 @@
-#![feature(test)]
+use criterion::{criterion_group, criterion_main, Criterion};
 
+extern crate criterion;
 extern crate ultra;
-extern crate test;
 
-use test::Bencher;
-use ultra::qgram_score;
+use ultra::decrypt;
 
 
-#[bench]
-fn qgram_lookup(b: &mut Bencher) {
-    b.iter(|| qgram_score("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"));
+fn bench_decrypt(c: &mut Criterion) {
+    let msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
+    c.bench_function(
+        "decrypt",
+        |b| b.iter(|| decrypt(msg))
+    );
 }
+
+criterion_group!{
+    name = decrypt_benches;
+    config = Criterion::default().sample_size(10);
+    targets = bench_decrypt
+}
+
+criterion_main!(decrypt_benches);

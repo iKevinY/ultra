@@ -35,3 +35,14 @@ lazy_static = "1.0"
 ordered-float = "2.1.1"
 rand = "0.8"
 rayon = "1.5"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "encrypt"
+harness = false
+
+[[bench]]
+name = "decrypt"
+harness = false
