@@ -245,6 +245,20 @@ impl Enigma {
             .collect()
     }
 
+    /// Returns a string representing the `Enigma`'s plugboard.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ultra::Enigma;
+    ///
+    /// let enigma = Enigma::new("123", "ABC", "DEF", 'B', "PY");
+    /// assert_eq!(enigma.plugboard(), "PY");
+    /// ```
+    pub fn plugboard(&self) -> String {
+        self.plugboard.to_string()
+    }
+
     /// Returns an iterator over the slow, middle, and fast rotors.
     fn rotors(&self) -> std::vec::IntoIter<Rotor> {
         vec![self.slow.clone(), self.mid.clone(), self.fast.clone()].into_iter()
