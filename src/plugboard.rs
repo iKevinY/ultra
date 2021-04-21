@@ -22,7 +22,7 @@ impl Plugboard {
             mapping[b.index()] = a;
         }
 
-        Plugboard { mapping: mapping }
+        Plugboard { mapping }
     }
 
     pub fn map(&self, c: char) -> char {
@@ -37,7 +37,7 @@ impl fmt::Display for Plugboard {
             .map(|(a, b)| format!("{}{}", a, b))
             .collect();
 
-        if plugs.len() == 0 {
+        if plugs.is_empty() {
             write!(f, "<none>")
         } else {
             write!(f, "{}", plugs.iter().join(" "))

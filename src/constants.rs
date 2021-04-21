@@ -1,7 +1,7 @@
 /// Enigma rotor and reflector information from Wikipedia:
 /// https://en.wikipedia.org/wiki/Enigma_rotor_details
 
-pub const ROTORS: &'static [&'static str; 8] = &[
+pub const ROTORS: &[&str; 8] = &[
     "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
     "AJDKSIRUXBLHWTMCQGZNPYFVOE",
     "BDFHJLCPRTXVZNYEIWGAKMUSQO",
@@ -12,11 +12,11 @@ pub const ROTORS: &'static [&'static str; 8] = &[
     "FKQHTLXOCBJSPDZRAMEWNIUYGV",
 ];
 
-pub const NOTCHES: &'static [&'static str; 8] = &[
+pub const NOTCHES: &[&str; 8] = &[
     "Q", "E", "V", "J", "Z", "ZM", "ZM", "ZM"
 ];
 
-pub const REFLECTORS: &'static [&'static str; 3] = &[
+pub const REFLECTORS: &[&str; 3] = &[
     "EJMZALYXVBWFCRQUONTSPIKHGD",
     "YRUHQSLDPXNGOKMIEBFZCWVJAT",
     "FVPJIAOYEDRZXWGCTKUQSBNMHL",

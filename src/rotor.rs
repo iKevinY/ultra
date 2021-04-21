@@ -33,8 +33,8 @@ impl Rotor {
         }
 
         Rotor {
-            mapping: mapping,
-            inverse: inverse,
+            mapping,
+            inverse,
             notches: notches.chars().map(|c| c.index()).collect(),
             offset: key.index(),
             key_setting: key.index(),

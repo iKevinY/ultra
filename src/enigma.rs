@@ -108,9 +108,8 @@ impl Enigma {
         let ring: String = alpha[..3].iter().collect();
 
         // Pick random plugs to fill plugboard with.
-        let mut plug_pool = alpha.clone();
-        plug_pool.shuffle(rng);
-        let plugboard = plug_pool
+        alpha.shuffle(rng);
+        let plugboard = alpha
             .chunks(2)
             .take(rng.gen_range(0..=MAX_PLUGS))
             .map(|chrs| chrs.iter().collect::<String>())

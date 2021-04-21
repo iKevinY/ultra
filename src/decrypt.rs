@@ -75,7 +75,7 @@ fn guess_rotor_and_first_key<F: FitnessFn>(msg: &str) -> Enigma {
 /// This method checks 26^4 == 456,976 settings in parallel.
 fn guess_key_and_ring<F: FitnessFn>(msg: &str, enigma: Enigma) -> Enigma {
     let rotor = enigma.rotor_list();
-    let first_key = enigma.key_settings().chars().nth(0).unwrap();
+    let first_key = enigma.key_settings().chars().next().unwrap();
 
     // Compute the key offset based on the first key setting, so that we only
     // iterate over the next 676 key settings (this implicitly fixes the slow
